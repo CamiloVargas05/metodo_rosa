@@ -1,27 +1,31 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 
 const EvaluacionSilla = ({ onNext, onBack, formData }) => {
   const [sillaData, setSillaData] = useState({
     alturaAsiento: {
       puntuacion: null,
-      incrementos: []
+      incrementos: [],
+      opcionSeleccionada: null
     },
     profundidadAsiento: {
       puntuacion: null,
-      incrementos: []
+      incrementos: [],
+      opcionSeleccionada: null
     },
     reposabrazos: {
       puntuacion: null,
-      incrementos: []
+      incrementos: [],
+      opcionSeleccionada: null
     },
     respaldo: {
       puntuacion: null,
-      incrementos: []
+      incrementos: [],
+      opcionSeleccionada: null
     },
-    tiempoUso: null // null = no seleccionado
+    tiempoUso: null
   });
 
   const [puntuaciones, setPuntuaciones] = useState({
@@ -30,18 +34,13 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
   });
 
   const [mostrarResultados, setMostrarResultados] = useState(false);
+  
+  // ✅ SOLUCIÓN 1: Ref para mantener la posición del scroll
+  const scrollPositionRef = useRef(0);
+  const containerRef = useRef(null);
 
-  // Calcular puntuaciones automáticamente (con optimización)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      calcularPuntuaciones();
-    }, 10); // Pequeño delay para evitar múltiples cálculos
-    
-    return () => clearTimeout(timer);
-  }, [sillaData]);
-
-  const calcularPuntuaciones = () => {
-    // Calcular puntuaciones individuales (incluso si no están todos completos)
+  // ✅ SOLUCIÓN 2: Debounce para los cálculos
+  const calcularPuntuaciones = useCallback(() => {
     const alturaTotal = sillaData.alturaAsiento.puntuacion !== null ? 
       sillaData.alturaAsiento.puntuacion + sillaData.alturaAsiento.incrementos.length : 0;
     const profundidadTotal = sillaData.profundidadAsiento.puntuacion !== null ? 
@@ -51,7 +50,6 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     const respaldoTotal = sillaData.respaldo.puntuacion !== null ? 
       sillaData.respaldo.puntuacion + sillaData.respaldo.incrementos.length : 0;
 
-    // Solo calcular tabla A y puntuación final si todos los campos están seleccionados
     if (sillaData.alturaAsiento.puntuacion === null || 
         sillaData.profundidadAsiento.puntuacion === null || 
         sillaData.reposabrazos.puntuacion === null || 
@@ -60,7 +58,6 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       setPuntuaciones({
         tablaA: 0,
         puntuacionSilla: 0,
-        // Mostrar puntuaciones individuales
         alturaTotal,
         profundidadTotal,
         reposabrazosTotal,
@@ -69,14 +66,9 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       return;
     }
 
-    // Suma para Tabla A
     const sumaAlturaProf = alturaTotal + profundidadTotal;
     const sumaReposResp = reposabrazosTotal + respaldoTotal;
-
-    // Tabla A
     const tablaA = obtenerTablaA(sumaAlturaProf, sumaReposResp);
-    
-    // Puntuación final de la silla (Tabla A + tiempo de uso)
     const puntuacionSilla = tablaA + sillaData.tiempoUso;
 
     setPuntuaciones({
@@ -87,10 +79,15 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       reposabrazosTotal,
       respaldoTotal
     });
-  };
+  }, [sillaData]);
+
+  // ✅ SOLUCIÓN 3: useEffect con cleanup y delay
+  useEffect(() => {
+    const timeoutId = setTimeout(calcularPuntuaciones, 50);
+    return () => clearTimeout(timeoutId);
+  }, [calcularPuntuaciones]);
 
   const obtenerTablaA = (alturaProf, reposResp) => {
-    // Implementación simplificada de la Tabla A del método ROSA
     const tabla = [
       [2, 2, 3, 4, 5, 6, 7, 8],
       [2, 2, 3, 4, 5, 6, 7, 8],
@@ -107,45 +104,59 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     return tabla[Math.max(0, fila)][Math.max(0, columna)];
   };
 
-  const handleSeleccionOpcion = (elemento, puntuacion, incrementos = []) => {
+  // ✅ SOLUCIÓN 4: Preservar scroll en los handlers
+  const handleSeleccionOpcion = useCallback((elemento, puntuacion, incrementos = [], indiceOpcion, event) => {
+    // Prevenir comportamiento por defecto
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     // Guardar posición actual del scroll
-    const scrollPosition = window.scrollY;
+    scrollPositionRef.current = window.pageYOffset || document.documentElement.scrollTop;
     
     setSillaData(prev => ({
       ...prev,
       [elemento]: {
         puntuacion,
-        incrementos
+        incrementos,
+        opcionSeleccionada: indiceOpcion
       }
     }));
     
     // Restaurar posición del scroll después del re-render
-    setTimeout(() => {
-      window.scrollTo(0, scrollPosition);
-    }, 0);
-  };
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPositionRef.current);
+      });
+    });
+  }, []);
 
-  const handleTiempoUso = (tiempo) => {
-    // Guardar posición actual del scroll
-    const scrollPosition = window.scrollY;
+  const handleTiempoUso = useCallback((tiempo, event) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    scrollPositionRef.current = window.pageYOffset || document.documentElement.scrollTop;
     
     setSillaData(prev => ({
       ...prev,
       tiempoUso: tiempo
     }));
     
-    // Restaurar posición del scroll después del re-render
-    setTimeout(() => {
-      window.scrollTo(0, scrollPosition);
-    }, 0);
-  };
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPositionRef.current);
+      });
+    });
+  }, []);
 
   const handleContinuar = () => {
-    // Validar que todos los campos estén seleccionados
-    if (sillaData.alturaAsiento.puntuacion === null || 
-        sillaData.profundidadAsiento.puntuacion === null || 
-        sillaData.reposabrazos.puntuacion === null || 
-        sillaData.respaldo.puntuacion === null || 
+    if (sillaData.alturaAsiento.opcionSeleccionada === null || 
+        sillaData.profundidadAsiento.opcionSeleccionada === null || 
+        sillaData.reposabrazos.opcionSeleccionada === null || 
+        sillaData.respaldo.opcionSeleccionada === null || 
         sillaData.tiempoUso === null) {
       alert('Por favor, complete todas las evaluaciones antes de continuar.');
       return;
@@ -164,127 +175,183 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     }
   };
 
-  const toggleResultados = () => {
-    setMostrarResultados(!mostrarResultados);
-  };
-
-  // Componente para mostrar opciones con imágenes
-  const OpcionEvaluacion = ({ titulo, elemento, opciones }) => (
+  // ✅ SOLUCIÓN 5: Componente optimizado sin re-renders innecesarios
+  const OpcionEvaluacion = React.memo(({ titulo, elemento, opciones }) => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-green-800 dark:text-green-300">{titulo}</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {opciones.map((opcion, index) => (
-          <button
-            key={index}
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSeleccionOpcion(elemento, opcion.puntuacion, opcion.incrementos || []);
-            }}
-            className={`p-4 border-2 rounded-lg transition-all duration-200 ${
-              sillaData[elemento].puntuacion === opcion.puntuacion &&
-              JSON.stringify(sillaData[elemento].incrementos) === JSON.stringify(opcion.incrementos || [])
-                ? 'border-green-500 bg-green-50 dark:bg-green-900'
-                : 'border-gray-300 dark:border-gray-600 hover:border-green-400'
-            }`}
-          >
-          <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3 overflow-hidden">
-              {/* Aquí irán las imágenes */}
-                  {opcion.imagen ? (
-                <Image
-                  src={opcion.imagen}
-                  alt={opcion.descripcion}
-                  fill
-                  className="object-contain group-hover:scale-105 transition-transform duration-200"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  onError={(e) => {
-                    // Fallback si la imagen no se encuentra
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div 
-                className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold"
-                style={{ display: opcion.imagen ? 'none' : 'flex' }}
-              >
-                {opcion.icono || 'IMG'}
+        {opciones.map((opcion, index) => {
+          const isSelected = sillaData[elemento].opcionSeleccionada === index;
+          
+          return (
+            <div
+              key={`${elemento}-${index}`}
+              className={`group relative cursor-pointer border-2 rounded-lg transition-all duration-200 hover:shadow-lg ${
+                isSelected
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900 shadow-md'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-green-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+              onClick={(e) => handleSeleccionOpcion(elemento, opcion.puntuacion, opcion.incrementos || [], index, e)}
+            >
+              {/* ✅ SOLUCIÓN 6: Contenedor de imagen con altura fija */}
+              <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-t-lg overflow-hidden">
+                {opcion.imagen ? (
+                  <Image
+                    src={opcion.imagen}
+                    alt={opcion.descripcion}
+                    fill
+                    className="object-contain group-hover:scale-105 transition-transform duration-200"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority={index < 2}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                
+                {/* Fallback cuando no hay imagen */}
+                <div 
+                  className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 rounded-t-lg flex items-center justify-center text-white"
+                  style={{ display: opcion.imagen ? 'none' : 'flex' }}
+                >
+                  <div className="text-center">
+                    <div className="text-4xl mb-2">📋</div>
+                    <div className="text-sm font-medium">Sin imagen</div>
+                  </div>
+                </div>
+                
+                {/* Badge de puntuación */}
+                <div className="absolute top-2 right-2 bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                  {opcion.puntuacion + (opcion.incrementos?.length || 0)}
+                </div>
+                
+                {/* Indicador de selección */}
+                {isSelected && (
+                  <div className="absolute top-2 left-2 bg-green-500 text-white rounded-full p-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              
+              {/* ✅ SOLUCIÓN 7: Contenido con padding fijo */}
+              <div className="p-3" style={{ minHeight: '80px' }}>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 leading-tight">
+                  {opcion.descripcion}
+                </p>
+                {opcion.incrementos && opcion.incrementos.length > 0 && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                    + Incrementos: {opcion.incrementos.join(', ')}
+                  </p>
+                )}
               </div>
             </div>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{opcion.descripcion}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Puntuación: {opcion.puntuacion + (opcion.incrementos?.length || 0)}
-            </p>
-          </button>
-        ))}
+          );
+        })}
       </div>
     </div>
-  );
+  ));
 
   const opcionesAlturaAsiento = [
-    { puntuacion: 1, 
+    { 
+      puntuacion: 1, 
       descripcion: "Rodillas dobladas en torno a los 90 grados.", 
       incrementos: [],
       imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/postura-neutra.png", 
     },
-    { puntuacion: 2, 
+    { 
+      puntuacion: 2, 
       descripcion: "Asiento a una altura baja. Rodillas flexionadas en un ángulo menor a 90 grados.", 
       incrementos: [],
       imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/postura-desviacion.png", 
     },
-    { puntuacion: 2, 
+    { 
+      puntuacion: 2, 
       descripcion: "Asiento a una altura elevada. Rodillas en un ángulo mayor a 90 grados.", 
-      incrementos: ["+1"],
+      incrementos: [],
       imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/espacio-insuficiente.png",
     },
-    { puntuacion: 1, 
-      descripcion: "Los pies no tienen apoyo sobre el suelo.", 
+    { 
+      puntuacion: 2,
+      descripcion: "Sin contacto de los pies con el suelo.", 
       incrementos: ["+1"],
       imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/altura-no-regulable.png",
-
     }
   ];
 
   const opcionesProfundidadAsiento = [
-    { puntuacion: 1,
+    { 
+      puntuacion: 1,
       descripcion: "Profundidad adecuada",
-      incrementos: [] },
-    { puntuacion: 2, 
-      descripcion: "Profundidad inadecuada", 
-      incrementos: [] 
+      incrementos: [],
+      imagen: "/imgs/img-posturas/puntuacion de la profundidad del asiento/postura2.png", 
     },
-    { puntuacion: 1, 
+    { 
+      puntuacion: 2, 
+      descripcion: "Profundidad inadecuada", 
+      incrementos: [],
+      imagen: "/imgs/img-posturas/puntuacion de la profundidad del asiento/postura1.png", 
+    },
+    { 
+      puntuacion: 1, 
       descripcion: "Adecuada + no regulable", 
-      incrementos: ["+1"] 
+      incrementos: ["+1"],
+      imagen: "/imgs/img-posturas/puntuacion de la profundidad del asiento/postura4.png",
     }
   ];
 
   const opcionesReposabrazos = [
-    { puntuacion: 1, 
+    { 
+      puntuacion: 1, 
       descripcion: "Altura y posición adecuadas", 
-      incrementos: [] 
+      incrementos: [], 
+      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura4.png",
     },
-    { puntuacion: 2, 
+    { 
+      puntuacion: 2, 
       descripcion: "Altura inadecuada", 
-      incrementos: [] 
+      incrementos: [],
+      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura1.png", 
     },
-    { puntuacion: 1, 
+    { 
+      puntuacion: 1, 
       descripcion: "Adecuados + no regulables", 
-      incrementos: ["+1"] 
+      incrementos: ["+1"],
+      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura2.png", 
     },
-    { puntuacion: 2, 
-      descripcion: "Muy altos o interfieren", incrementos: ["+1"] 
+    { 
+      puntuacion: 2, 
+      descripcion: "Muy altos o interfieren", 
+      incrementos: ["+1"],
+      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura3.png", 
     }
   ];
 
   const opcionesRespaldo = [
-    { puntuacion: 1, descripcion: "Respaldo adecuado con soporte lumbar", incrementos: [] },
-    { puntuacion: 2, descripcion: "Sin soporte lumbar adecuado", incrementos: [] },
-    { puntuacion: 1, descripcion: "Adecuado + no regulable", incrementos: ["+1"] }
+    { 
+      puntuacion: 1, 
+      descripcion: "Respaldo adecuado con soporte lumbar", 
+      incrementos: [],
+      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura3.png",
+    },
+    { 
+      puntuacion: 2, 
+      descripcion: "Sin soporte lumbar adecuado", 
+      incrementos: [], 
+      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura2.png",
+    },
+    { 
+      puntuacion: 1, 
+      descripcion: "Adecuado + no regulable", 
+      incrementos: ["+1"],
+      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura1.png",
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+    <div ref={containerRef} className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           
@@ -301,9 +368,9 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
               <p className="text-sm text-gray-600 dark:text-gray-400">Trabajador: {formData?.nombreTrabajador}</p>
             </div>
 
-            {/* Puntuación actual - área fija para evitar saltos */}
-            <div className="bg-green-50 dark:bg-green-900 p-4 rounded-lg min-h-[120px]">
-              <div className="flex items-center justify-between">
+            {/* ✅ SOLUCIÓN 8: Puntuación con altura fija y mejor estructura */}
+            <div className="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-green-800 dark:text-green-200">Puntuación Actual de la Silla</h3>
                 {(puntuaciones.alturaTotal > 0 || puntuaciones.profundidadTotal > 0 || 
                   puntuaciones.reposabrazosTotal > 0 || puntuaciones.respaldoTotal > 0) && (
@@ -313,45 +380,41 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
                       e.preventDefault();
                       setMostrarResultados(!mostrarResultados);
                     }}
-                    className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                    className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 text-sm font-medium"
                   >
                     {mostrarResultados ? 'Ocultar' : 'Ver'} Detalles
                   </button>
                 )}
               </div>
               
-              <div className="text-2xl font-bold text-green-700 dark:text-green-300 mt-2">
+              <div className="text-3xl font-bold text-green-700 dark:text-green-300 mb-4">
                 Puntuación: {puntuaciones.puntuacionSilla || '-'}
               </div>
               
-              {/* Mostrar puntajes individuales solo si mostrarResultados está activo */}
-              {mostrarResultados && (puntuaciones.alturaTotal > 0 || puntuaciones.profundidadTotal > 0 || 
-                puntuaciones.reposabrazosTotal > 0 || puntuaciones.respaldoTotal > 0) && (
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <p className="font-medium">Altura: {puntuaciones.alturaTotal || '-'}</p>
+              {/* ✅ Contenedor con altura mínima fija */}
+              <div style={{ minHeight: mostrarResultados ? 'auto' : '0px' }}>
+                {mostrarResultados && (puntuaciones.alturaTotal > 0 || puntuaciones.profundidadTotal > 0 || 
+                  puntuaciones.reposabrazosTotal > 0 || puntuaciones.respaldoTotal > 0) && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                      <p className="font-medium">Altura</p>
+                      <p className="text-lg font-bold text-green-600">{puntuaciones.alturaTotal || '-'}</p>
+                    </div>
+                    <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                      <p className="font-medium">Profundidad</p>
+                      <p className="text-lg font-bold text-green-600">{puntuaciones.profundidadTotal || '-'}</p>
+                    </div>
+                    <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                      <p className="font-medium">Reposabrazos</p>
+                      <p className="text-lg font-bold text-green-600">{puntuaciones.reposabrazosTotal || '-'}</p>
+                    </div>
+                    <div className="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                      <p className="font-medium">Respaldo</p>
+                      <p className="text-lg font-bold text-green-600">{puntuaciones.respaldoTotal || '-'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">Profundidad: {puntuaciones.profundidadTotal || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Reposabrazos: {puntuaciones.reposabrazosTotal || '-'}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Respaldo: {puntuaciones.respaldoTotal || '-'}</p>
-                  </div>
-                  {puntuaciones.tablaA > 0 && (
-                    <>
-                      <div className="col-span-2">
-                        <p className="font-medium">Tabla A: {puntuaciones.tablaA}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="font-medium">Tiempo uso: {sillaData.tiempoUso !== null ? (sillaData.tiempoUso > 0 ? '+1' : sillaData.tiempoUso < 0 ? '-1' : '0') : '-'}</p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Evaluaciones */}
@@ -379,37 +442,36 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
               opciones={opcionesRespaldo}
             />
 
-            {/* Tiempo de uso */}
+            {/* ✅ SOLUCIÓN 9: Tiempo de uso con div en lugar de button */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-orange-800 dark:text-orange-300">Tiempo de Uso de la Silla</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  { valor: -1, descripcion: "Menos de 1 hora total o menos de 30 min continuos", color: "green" },
-                  { valor: 0, descripcion: "Entre 1 y 4 horas total o entre 30 min y 1 hora continua", color: "yellow" },
-                  { valor: 1, descripcion: "Más de 4 horas o más de 1 hora continua", color: "red" }
+                  { valor: -1, descripcion: "Menos de 1 hora total o menos de 30 min continuos", color: "green", icono: "🟢" },
+                  { valor: 0, descripcion: "Entre 1 y 4 horas total o entre 30 min y 1 hora continua", color: "yellow", icono: "🟡" },
+                  { valor: 1, descripcion: "Más de 4 horas o más de 1 hora continua", color: "red", icono: "🔴" }
                 ].map((opcion) => (
-                  <button
+                  <div
                     key={opcion.valor}
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTiempoUso(opcion.valor);
-                    }}
-                    className={`p-4 border-2 rounded-lg transition-all duration-200 ${
+                    className={`p-4 border-2 rounded-lg transition-all duration-200 text-left cursor-pointer ${
                       sillaData.tiempoUso === opcion.valor
-                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-900'
-                        : 'border-gray-300 dark:border-gray-600 hover:border-orange-400'
+                        ? 'border-orange-500 bg-orange-50 dark:bg-orange-900 shadow-md'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-orange-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
+                    onClick={(e) => handleTiempoUso(opcion.valor, e)}
                   >
-                    <div className={`w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center font-bold text-white ${
-                      opcion.color === 'green' ? 'bg-green-500' :
-                      opcion.color === 'yellow' ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    }`}>
-                      {opcion.valor > 0 ? '+1' : opcion.valor < 0 ? '-1' : '0'}
+                    <div className="flex items-center mb-2">
+                      <span className="text-2xl mr-3">{opcion.icono}</span>
+                      <span className={`text-lg font-bold px-2 py-1 rounded ${
+                        opcion.color === 'green' ? 'bg-green-100 text-green-800' :
+                        opcion.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {opcion.valor > 0 ? '+1' : opcion.valor < 0 ? '-1' : '0'}
+                      </span>
                     </div>
                     <p className="text-sm text-gray-700 dark:text-gray-300">{opcion.descripcion}</p>
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>
