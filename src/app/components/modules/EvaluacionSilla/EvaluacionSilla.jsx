@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 const EvaluacionSilla = ({ onNext, onBack, formData }) => {
   const [sillaData, setSillaData] = useState({
@@ -187,10 +188,27 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
                 : 'border-gray-300 dark:border-gray-600 hover:border-green-400'
             }`}
           >
-            <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
+          <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700 rounded-lg mb-3 overflow-hidden">
               {/* Aquí irán las imágenes */}
-              <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold">
-                IMG
+                  {opcion.imagen ? (
+                <Image
+                  src={opcion.imagen}
+                  alt={opcion.descripcion}
+                  fill
+                  className="object-contain group-hover:scale-105 transition-transform duration-200"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  onError={(e) => {
+                    // Fallback si la imagen no se encuentra
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div 
+                className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold"
+                style={{ display: opcion.imagen ? 'none' : 'flex' }}
+              >
+                {opcion.icono || 'IMG'}
               </div>
             </div>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{opcion.descripcion}</p>
@@ -204,23 +222,59 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
   );
 
   const opcionesAlturaAsiento = [
-    { puntuacion: 1, descripcion: "Altura correcta (ángulo 90°)", incrementos: [] },
-    { puntuacion: 2, descripcion: "Muy alto o muy bajo", incrementos: [] },
-    { puntuacion: 2, descripcion: "Muy bajo + espacio insuficiente", incrementos: ["+1"] },
-    { puntuacion: 1, descripcion: "Altura correcta + no regulable", incrementos: ["+1"] }
+    { puntuacion: 1, 
+      descripcion: "Rodillas dobladas en torno a los 90 grados.", 
+      incrementos: [],
+      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/postura-neutra.png", 
+    },
+    { puntuacion: 2, 
+      descripcion: "Asiento a una altura baja. Rodillas flexionadas en un ángulo menor a 90 grados.", 
+      incrementos: [],
+      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/postura-desviacion.png", 
+    },
+    { puntuacion: 2, 
+      descripcion: "Asiento a una altura elevada. Rodillas en un ángulo mayor a 90 grados.", 
+      incrementos: ["+1"],
+      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/espacio-insuficiente.png",
+    },
+    { puntuacion: 1, 
+      descripcion: "Los pies no tienen apoyo sobre el suelo.", 
+      incrementos: ["+1"],
+      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/altura-no-regulable.png",
+
+    }
   ];
 
   const opcionesProfundidadAsiento = [
-    { puntuacion: 1, descripcion: "Profundidad adecuada", incrementos: [] },
-    { puntuacion: 2, descripcion: "Profundidad inadecuada", incrementos: [] },
-    { puntuacion: 1, descripcion: "Adecuada + no regulable", incrementos: ["+1"] }
+    { puntuacion: 1,
+      descripcion: "Profundidad adecuada",
+      incrementos: [] },
+    { puntuacion: 2, 
+      descripcion: "Profundidad inadecuada", 
+      incrementos: [] 
+    },
+    { puntuacion: 1, 
+      descripcion: "Adecuada + no regulable", 
+      incrementos: ["+1"] 
+    }
   ];
 
   const opcionesReposabrazos = [
-    { puntuacion: 1, descripcion: "Altura y posición adecuadas", incrementos: [] },
-    { puntuacion: 2, descripcion: "Altura inadecuada", incrementos: [] },
-    { puntuacion: 1, descripcion: "Adecuados + no regulables", incrementos: ["+1"] },
-    { puntuacion: 2, descripcion: "Muy altos o interfieren", incrementos: ["+1"] }
+    { puntuacion: 1, 
+      descripcion: "Altura y posición adecuadas", 
+      incrementos: [] 
+    },
+    { puntuacion: 2, 
+      descripcion: "Altura inadecuada", 
+      incrementos: [] 
+    },
+    { puntuacion: 1, 
+      descripcion: "Adecuados + no regulables", 
+      incrementos: ["+1"] 
+    },
+    { puntuacion: 2, 
+      descripcion: "Muy altos o interfieren", incrementos: ["+1"] 
+    }
   ];
 
   const opcionesRespaldo = [
