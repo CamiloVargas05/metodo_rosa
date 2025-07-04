@@ -206,34 +206,39 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
   const columnaSeleccionada = Math.min(Math.max(0, puntuacionPantallaPerifericos - 1), tablaE[0].length - 1);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
 
           {/* Header */}
-          <div className="bg-gradient-to-r from-green-500 to-orange-500 px-6 py-4">
-            <h1 className="text-2xl font-bold text-white">Resultados Finales ROSA</h1>
-            <p className="text-green-100 mt-1">Evaluación ergonómica completa del puesto de trabajo</p>
+          <div className="bg-gradient-to-r from-green-500 to-orange-500 px-4 sm:px-6 py-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-white">Resultados Finales ROSA</h1>
+            <p className="text-green-100 mt-1 text-sm sm:text-base">Evaluación ergonómica completa del puesto de trabajo</p>
           </div>
 
-          <div className="p-6 space-y-8">
+          <div className="p-4 sm:p-6 space-y-6 sm:space-y-8">
             {/* Información del puesto */}
             <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-              <h2 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                Puesto: {datosEvaluacion?.identificadorPuesto} | Trabajador: {datosEvaluacion?.nombreTrabajador}
+              <h2 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 text-sm sm:text-base">
+                Puesto: {datosEvaluacion?.identificadorPuesto}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Empresa: {datosEvaluacion?.empresa} | Evaluado por: {datosEvaluacion?.nombreEvaluador} | 
-                Fecha: {datosEvaluacion?.fechaEvaluacion}
+                Trabajador: {datosEvaluacion?.nombreTrabajador}
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                Empresa: {datosEvaluacion?.empresa}
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                Evaluado por: {datosEvaluacion?.nombreEvaluador} | Fecha: {datosEvaluacion?.fechaEvaluacion}
               </p>
             </div>
 
             {/* Resultado Final Grande */}
-            <div className={`p-8 rounded-xl text-center ${getColorRiesgo(nivelRiesgo)}`}>
-              <h2 className="text-3xl font-bold mb-4">PUNTUACIÓN ROSA FINAL</h2>
-              <div className="text-6xl font-bold mb-4">{puntuacionFinal}</div>
-              <div className="text-2xl font-semibold mb-2">NIVEL DE RIESGO: {nivelRiesgo}</div>
-              <p className="text-lg">
+            <div className={`p-6 sm:p-8 rounded-xl text-center ${getColorRiesgo(nivelRiesgo)}`}>
+              <h2 className="text-xl sm:text-3xl font-bold mb-4">PUNTUACIÓN ROSA FINAL</h2>
+              <div className="text-4xl sm:text-6xl font-bold mb-4">{puntuacionFinal}</div>
+              <div className="text-lg sm:text-2xl font-semibold mb-2">NIVEL DE RIESGO: {nivelRiesgo}</div>
+              <p className="text-sm sm:text-lg">
                 {nivelRiesgo === 'BAJO' && 'Riesgo aceptable. Mantener condiciones actuales.'}
                 {nivelRiesgo === 'MEDIO' && 'Riesgo moderado. Se recomiendan mejoras.'}
                 {nivelRiesgo === 'ALTO' && 'Riesgo elevado. Se requieren cambios significativos.'}
@@ -242,113 +247,124 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
             </div>
 
             {/* Resumen de componentes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-green-50 dark:bg-green-900 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-green-800 dark:text-green-300 mb-4">Evaluación de la Silla</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="bg-green-50 dark:bg-green-900 p-4 sm:p-6 rounded-lg">
+                <h3 className="text-base sm:text-lg font-semibold text-green-800 dark:text-green-300 mb-4">🪑 Evaluación de la Silla</h3>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">{puntuacionSilla}</div>
-                  <p className="text-sm text-green-700 dark:text-green-300 mt-2">
+                  <div className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{puntuacionSilla}</div>
+                  <p className="text-xs sm:text-sm text-green-700 dark:text-green-300 mt-2">
                     Incluye: altura, profundidad, reposabrazos, respaldo y tiempo de uso
                   </p>
                 </div>
               </div>
 
-              <div className="bg-orange-50 dark:bg-orange-900 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-orange-800 dark:text-orange-300 mb-4">Pantalla y Periféricos</h3>
+              <div className="bg-orange-50 dark:bg-orange-900 p-4 sm:p-6 rounded-lg">
+                <h3 className="text-base sm:text-lg font-semibold text-orange-800 dark:text-orange-300 mb-4">🖥️ Pantalla y Periféricos</h3>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">{puntuacionPantallaPerifericos}</div>
-                  <p className="text-sm text-orange-700 dark:text-orange-300 mt-2">
+                  <div className="text-2xl sm:text-3xl font-bold text-orange-600 dark:text-orange-400">{puntuacionPantallaPerifericos}</div>
+                  <p className="text-xs sm:text-sm text-orange-700 dark:text-orange-300 mt-2">
                     Incluye: monitor, teclado, mouse, teléfono y tiempos de uso
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Tabla E Final */}
-            <div className="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-4 text-center">
-                Tabla E - Combinación Final ROSA
+            {/* Tabla E - Siempre visible */}
+            <div className="bg-blue-50 dark:bg-blue-900 p-4 sm:p-6 rounded-lg">
+              <h3 className="text-base sm:text-lg font-semibold text-blue-800 dark:text-blue-300 mb-4 text-center">
+                📊 Tabla E - Combinación Final ROSA
               </h3>
 
-              <div className="flex items-center justify-center space-x-4 mb-4">
-                <span className="text-blue-700 dark:text-blue-300">Silla: {puntuacionSilla}</span>
-                <span>+</span>
-                <span className="text-blue-700 dark:text-blue-300">Pantalla/Periféricos: {puntuacionPantallaPerifericos}</span>
-                <span>=</span>
-                <span className="text-xl font-bold text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 px-3 py-1 rounded">
-                  ROSA: {puntuacionFinal}
-                </span>
+              {/* Explicación del cálculo */}
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4">
+                <div className="text-center space-y-2">
+                  <div className="flex items-center justify-center space-x-2 text-sm sm:text-base">
+                    <span className="bg-green-100 dark:bg-green-800 px-2 py-1 rounded text-green-700 dark:text-green-300 font-medium">
+                      🪑 Silla: {puntuacionSilla}
+                    </span>
+                    <span className="text-gray-500">+</span>
+                    <span className="bg-orange-100 dark:bg-orange-800 px-2 py-1 rounded text-orange-700 dark:text-orange-300 font-medium">
+                      🖥️ Pantalla: {puntuacionPantallaPerifericos}
+                    </span>
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    = ROSA: {puntuacionFinal}
+                  </div>
+                </div>
               </div>
 
+              {/* Tabla completa - Siempre visible */}
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr>
-                      <th className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-700"></th>
-                      <th colSpan="10" className="border border-gray-300 dark:border-gray-600 p-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-semibold">
-                        Puntuación Pantalla y Periféricos
-                      </th>
-                    </tr>
-                    <tr>
-                      <th className="border border-gray-300 dark:border-gray-600 p-2 bg-gray-100 dark:bg-gray-700">Silla</th>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(valor => (
-                        <th
-                          key={valor}
-                          className={`border border-gray-300 dark:border-gray-600 p-2 text-center ${
-                            valor === puntuacionPantallaPerifericos ? 'bg-blue-200 dark:bg-blue-800 font-bold' : 'bg-gray-50 dark:bg-gray-700'
-                          }`}
-                        >
-                          {valor}
+                <div className="min-w-full">
+                  <table className="w-full border-collapse text-xs sm:text-sm">
+                    <thead>
+                      <tr>
+                        <th className="border border-gray-300 dark:border-gray-600 p-1 sm:p-2 bg-gray-100 dark:bg-gray-700 text-xs">Silla</th>
+                        <th colSpan="10" className="border border-gray-300 dark:border-gray-600 p-1 sm:p-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-semibold text-xs">
+                          Puntuación Pantalla y Periféricos
                         </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tablaE.map((fila, filaIndex) => (
-                      <tr key={filaIndex}>
-                        <th
-                          className={`border border-gray-300 dark:border-gray-600 p-2 text-center ${
-                            (filaIndex + 1) === puntuacionSilla ? 'bg-green-200 dark:bg-green-800 font-bold' : 'bg-gray-50 dark:bg-gray-700'
-                          }`}
-                        >
-                          {filaIndex + 1}
-                        </th>
-                        {fila.map((valor, colIndex) => (
-                          <td
-                            key={colIndex}
-                            className={`border border-gray-300 dark:border-gray-600 p-2 text-center font-medium ${
-                              filaIndex === filaSeleccionada && colIndex === columnaSeleccionada
-                                ? 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200 font-bold text-lg animate-pulse'
-                                : filaIndex === filaSeleccionada
-                                ? 'bg-green-100 dark:bg-green-900'
-                                : colIndex === columnaSeleccionada
-                                ? 'bg-blue-100 dark:bg-blue-900'
-                                : 'bg-white dark:bg-gray-800'
+                      </tr>
+                      <tr>
+                        <th className="border border-gray-300 dark:border-gray-600 p-1 sm:p-2 bg-gray-100 dark:bg-gray-700 text-xs"></th>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(valor => (
+                          <th
+                            key={valor}
+                            className={`border border-gray-300 dark:border-gray-600 p-1 text-center text-xs ${
+                              valor === puntuacionPantallaPerifericos ? 'bg-blue-200 dark:bg-blue-800 font-bold' : 'bg-gray-50 dark:bg-gray-700'
                             }`}
                           >
                             {valor}
-                          </td>
+                          </th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {tablaE.map((fila, filaIndex) => (
+                        <tr key={filaIndex}>
+                          <th
+                            className={`border border-gray-300 dark:border-gray-600 p-1 text-center text-xs ${
+                              (filaIndex + 1) === puntuacionSilla ? 'bg-green-200 dark:bg-green-800 font-bold' : 'bg-gray-50 dark:bg-gray-700'
+                            }`}
+                          >
+                            {filaIndex + 1}
+                          </th>
+                          {fila.map((valor, colIndex) => (
+                            <td
+                              key={colIndex}
+                              className={`border border-gray-300 dark:border-gray-600 p-1 text-center text-xs font-medium ${
+                                filaIndex === filaSeleccionada && colIndex === columnaSeleccionada
+                                  ? 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200 font-bold animate-pulse'
+                                  : filaIndex === filaSeleccionada
+                                  ? 'bg-green-100 dark:bg-green-900'
+                                  : colIndex === columnaSeleccionada
+                                  ? 'bg-blue-100 dark:bg-blue-900'
+                                  : 'bg-white dark:bg-gray-800'
+                              }`}
+                            >
+                              {valor}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 
             {/* Recomendaciones */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Recomendaciones</h3>
+            <div className="space-y-4 sm:space-y-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200">💡 Recomendaciones</h3>
               {recomendaciones.map((categoria, index) => (
-                <div key={index} className="bg-yellow-50 dark:bg-yellow-900 p-6 rounded-lg">
-                  <h4 className="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-3">
+                <div key={index} className="bg-yellow-50 dark:bg-yellow-900 p-4 sm:p-6 rounded-lg">
+                  <h4 className="text-base sm:text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-3">
                     {categoria.categoria}
                   </h4>
                   <ul className="space-y-2">
                     {categoria.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="text-yellow-700 dark:text-yellow-200 flex items-start">
-                        <span className="text-yellow-600 dark:text-yellow-400 mr-2">•</span>
-                        {item}
+                      <li key={itemIndex} className="text-yellow-700 dark:text-yellow-200 flex items-start text-sm sm:text-base">
+                        <span className="text-yellow-600 dark:text-yellow-400 mr-2 flex-shrink-0">•</span>
+                        <span>{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -357,34 +373,40 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
             </div>
 
             {/* Botones de acción */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button
-                onClick={onVolver}
-                className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-              >
-                ← Volver a Modificar
-              </button>
-              
-              <button
-                onClick={generarPDF}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 hover:transform hover:-translate-y-1 shadow-lg"
-              >
-                📄 Imprimir Informe PDF
-              </button>
+            <div className="flex flex-col gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+              {/* Fila 1: Botones de navegación */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={onVolver}
+                  className="px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 text-sm sm:text-base"
+                >
+                  ← Volver a Modificar
+                </button>
+                
+                <button
+                  onClick={onVolverInicio}
+                  className="bg-gradient-to-r from-green-500 to-orange-500 text-white px-4 py-3 rounded-lg font-medium hover:from-green-600 hover:to-orange-600 transition-all duration-300 text-sm sm:text-base"
+                >
+                  🔄 Nueva Evaluación
+                </button>
+              </div>
 
-              <button
-                onClick={descargarHTML}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:transform hover:-translate-y-1 shadow-lg"
-              >
-                💾 Descargar Informe HTML
-              </button>
+              {/* Fila 2: Botones de descarga */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={generarPDF}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-3 rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 text-sm sm:text-base flex-1"
+                >
+                  📄 Imprimir Informe PDF
+                </button>
 
-              <button
-                onClick={onVolverInicio}
-                className="bg-gradient-to-r from-green-500 to-orange-500 text-white px-8 py-3 rounded-lg font-medium hover:from-green-600 hover:to-orange-600 transition-all duration-300 hover:transform hover:-translate-y-1 shadow-lg"
-              >
-                Nueva Evaluación
-              </button>
+                <button
+                  onClick={descargarHTML}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-3 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 text-sm sm:text-base flex-1"
+                >
+                  💾 Descargar Informe HTML
+                </button>
+              </div>
             </div>
           </div>
         </div>

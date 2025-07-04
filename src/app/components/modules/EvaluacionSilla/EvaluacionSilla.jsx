@@ -35,11 +35,11 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
 
   const [mostrarResultados, setMostrarResultados] = useState(false);
   
-  // ✅ SOLUCIÓN 1: Ref para mantener la posición del scroll
+
   const scrollPositionRef = useRef(0);
   const containerRef = useRef(null);
 
-  // ✅ SOLUCIÓN 2: Debounce para los cálculos
+
   const calcularPuntuaciones = useCallback(() => {
     const alturaTotal = sillaData.alturaAsiento.puntuacion !== null ? 
       sillaData.alturaAsiento.puntuacion + sillaData.alturaAsiento.incrementos.length : 0;
@@ -81,7 +81,7 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     });
   }, [sillaData]);
 
-  // ✅ SOLUCIÓN 3: useEffect con cleanup y delay
+ 
   useEffect(() => {
     const timeoutId = setTimeout(calcularPuntuaciones, 50);
     return () => clearTimeout(timeoutId);
@@ -104,7 +104,7 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     return tabla[Math.max(0, fila)][Math.max(0, columna)];
   };
 
-  // ✅ SOLUCIÓN 4: Preservar scroll en los handlers
+ 
   const handleSeleccionOpcion = useCallback((elemento, puntuacion, incrementos = [], indiceOpcion, event) => {
     // Prevenir comportamiento por defecto
     if (event) {
@@ -112,7 +112,7 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       event.stopPropagation();
     }
     
-    // Guardar posición actual del scroll
+
     scrollPositionRef.current = window.pageYOffset || document.documentElement.scrollTop;
     
     setSillaData(prev => ({
@@ -124,7 +124,7 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       }
     }));
     
-    // Restaurar posición del scroll después del re-render
+    
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         window.scrollTo(0, scrollPositionRef.current);
@@ -175,7 +175,7 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     }
   };
 
-  // ✅ SOLUCIÓN 5: Componente optimizado sin re-renders innecesarios
+
   const OpcionEvaluacion = React.memo(({ titulo, elemento, opciones }) => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-green-800 dark:text-green-300">{titulo}</h3>

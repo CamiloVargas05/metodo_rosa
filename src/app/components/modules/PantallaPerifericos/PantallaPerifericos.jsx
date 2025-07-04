@@ -43,11 +43,10 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
 
   const [mostrarResultados, setMostrarResultados] = useState(false);
   
-  // ✅ SOLUCIÓN 1: Ref para mantener la posición del scroll
+  
   const scrollPositionRef = useRef(0);
   const containerRef = useRef(null);
 
-  // ✅ SOLUCIÓN 2: Debounce para los cálculos
   const calcularPuntuaciones = useCallback(() => {
     // Calcular puntuaciones individuales (incluso si no están todos completos)
     const puntuacionPantalla = evaluacionData.pantalla.puntuacion !== null && evaluacionData.pantalla.tiempoUso !== null ?
@@ -97,7 +96,7 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     });
   }, [evaluacionData]);
 
-  // ✅ SOLUCIÓN 3: useEffect con cleanup y delay
+ 
   useEffect(() => {
     const timeoutId = setTimeout(calcularPuntuaciones, 50);
     return () => clearTimeout(timeoutId);
@@ -157,7 +156,7 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     return tabla[fila][columna];
   };
 
-  // ✅ SOLUCIÓN 4: Preservar scroll en los handlers
+ 
   const handleSeleccionOpcion = useCallback((elemento, puntuacion, incrementos = [], indiceOpcion, event) => {
     // Prevenir comportamiento por defecto
     if (event) {
@@ -165,7 +164,7 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
       event.stopPropagation();
     }
     
-    // Guardar posición actual del scroll
+
     scrollPositionRef.current = window.pageYOffset || document.documentElement.scrollTop;
     
     setEvaluacionData(prev => ({
@@ -178,7 +177,6 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
       }
     }));
     
-    // Restaurar posición del scroll después del re-render
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         window.scrollTo(0, scrollPositionRef.current);
@@ -232,7 +230,7 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     }
   };
 
-  // ✅ SOLUCIÓN 5: Componente optimizado sin re-renders innecesarios
+
   const OpcionEvaluacion = React.memo(({ titulo, elemento, opciones }) => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-orange-800 dark:text-orange-300">{titulo}</h3>
