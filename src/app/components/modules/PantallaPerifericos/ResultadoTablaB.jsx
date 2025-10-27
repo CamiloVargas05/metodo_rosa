@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react';
 
 const ResultadoTablaB = ({ onContinuar, onVolver, datosEvaluacion }) => {
   // Debug y validación
-  console.log('ResultadoTablaB - datos recibidos:', datosEvaluacion);
+  
 
   if (!datosEvaluacion?.evaluacionPantallaPerifericos) {
     return (
@@ -26,6 +25,20 @@ const ResultadoTablaB = ({ onContinuar, onVolver, datosEvaluacion }) => {
 
   const { evaluacionPantallaPerifericos, ...formData } = datosEvaluacion;
   const puntuaciones = evaluacionPantallaPerifericos.puntuaciones || {};
+
+  // Calcular los opcionales seleccionados
+  const incrementosPantalla = (evaluacionPantallaPerifericos?.pantalla?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+  const incrementosTelefono = (evaluacionPantallaPerifericos?.telefono?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+  const incrementosMouse = (evaluacionPantallaPerifericos?.mouse?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+  const incrementosTeclado = (evaluacionPantallaPerifericos?.teclado?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+
+  // Puntuaciones base (sin tiempo de uso ni opcionales)
+  const puntuacionBasePantalla = evaluacionPantallaPerifericos?.pantalla?.puntuacion || 0;
+  const puntuacionBaseTelefono = evaluacionPantallaPerifericos?.telefono?.puntuacion || 0;
+  const puntuacionBaseMouse = evaluacionPantallaPerifericos?.mouse?.puntuacion || 0;
+  const puntuacionBaseTeclado = evaluacionPantallaPerifericos?.teclado?.puntuacion || 0;
+
+
 
   // Tablas para mostrar
   const tablaB = [
@@ -96,18 +109,38 @@ const ResultadoTablaB = ({ onContinuar, onVolver, datosEvaluacion }) => {
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">{puntuaciones.puntuacionPantalla || 0}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Pantalla</div>
+                  {(incrementosPantalla > 0 || evaluacionPantallaPerifericos?.pantalla?.tiempoUso > 0) && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({puntuacionBasePantalla}{incrementosPantalla > 0 ? ` + ${incrementosPantalla}` : ''}{evaluacionPantallaPerifericos?.pantalla?.tiempoUso > 0 ? ` + ${evaluacionPantallaPerifericos.pantalla.tiempoUso}` : ''})
+                    </div>
+                  )}
                 </div>
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">{puntuaciones.puntuacionTelefono || 0}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Teléfono</div>
+                  {(incrementosTelefono > 0 || evaluacionPantallaPerifericos?.telefono?.tiempoUso > 0) && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({puntuacionBaseTelefono}{incrementosTelefono > 0 ? ` + ${incrementosTelefono}` : ''}{evaluacionPantallaPerifericos?.telefono?.tiempoUso > 0 ? ` + ${evaluacionPantallaPerifericos.telefono.tiempoUso}` : ''})
+                    </div>
+                  )}
                 </div>
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">{puntuaciones.puntuacionMouse || 0}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Mouse</div>
+                  {(incrementosMouse > 0 || evaluacionPantallaPerifericos?.mouse?.tiempoUso > 0) && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({puntuacionBaseMouse}{incrementosMouse > 0 ? ` + ${incrementosMouse}` : ''}{evaluacionPantallaPerifericos?.mouse?.tiempoUso > 0 ? ` + ${evaluacionPantallaPerifericos.mouse.tiempoUso}` : ''})
+                    </div>
+                  )}
                 </div>
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-orange-600 dark:text-orange-400">{puntuaciones.puntuacionTeclado || 0}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Teclado</div>
+                  {(incrementosTeclado > 0 || evaluacionPantallaPerifericos?.teclado?.tiempoUso > 0) && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({puntuacionBaseTeclado}{incrementosTeclado > 0 ? ` + ${incrementosTeclado}` : ''}{evaluacionPantallaPerifericos?.teclado?.tiempoUso > 0 ? ` + ${evaluacionPantallaPerifericos.teclado.tiempoUso}` : ''})
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

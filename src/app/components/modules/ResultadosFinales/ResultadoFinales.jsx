@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { generarInformePDF, descargarInformeHTML } from '../../../utils/PDFGenerator';
+import { useEffect, useState } from 'react';
+import { descargarInformeHTML, generarInformePDF } from '../../../utils/PDFGenerator';
 
 const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
   const [puntuacionFinal, setPuntuacionFinal] = useState(0);
@@ -49,18 +49,39 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
   };
 
   const getNivelRiesgo = (puntuacion) => {
-    if (puntuacion <= 2) return 'BAJO';
-    if (puntuacion <= 4) return 'MEDIO';
-    if (puntuacion <= 7) return 'ALTO';
-    return 'MUY ALTO';
+    if (puntuacion === 1) return 'INAPRECIABLE';
+    if (puntuacion >= 2 && puntuacion <= 4) return 'MEJORABLE';
+    if (puntuacion === 5) return 'ALTO';
+    if (puntuacion >= 6 && puntuacion <= 8) return 'MUY ALTO';
+    if (puntuacion >= 9) return 'EXTREMO';
+    return 'INAPRECIABLE';
+  };
+
+  const getNivelActuacion = (puntuacion) => {
+    if (puntuacion === 1) return '0';
+    if (puntuacion >= 2 && puntuacion <= 4) return '1';
+    if (puntuacion === 5) return '2';
+    if (puntuacion >= 6 && puntuacion <= 8) return '3';
+    if (puntuacion >= 9) return '4';
+    return '0';
+  };
+
+  const getDescripcionActuacion = (puntuacion) => {
+    if (puntuacion === 1) return 'No es necesaria actuación.';
+    if (puntuacion >= 2 && puntuacion <= 4) return 'Pueden mejorarse algunos elementos del puesto.';
+    if (puntuacion === 5) return 'Es necesaria la actuación.';
+    if (puntuacion >= 6 && puntuacion <= 8) return 'Es necesaria la actuación cuanto antes.';
+    if (puntuacion >= 9) return 'Es necesaria la actuación urgentemente.';
+    return 'No es necesaria actuación.';
   };
 
   const getColorRiesgo = (nivel) => {
     switch (nivel) {
-      case 'BAJO': return 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300';
-      case 'MEDIO': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'ALTO': return 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300';
-      case 'MUY ALTO': return 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300';
+      case 'INAPRECIABLE': return 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300';
+      case 'MEJORABLE': return 'text-blue-600 bg-blue-100 dark:bg-blue-900 dark:text-blue-300';
+      case 'ALTO': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-300';
+      case 'MUY ALTO': return 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300';
+      case 'EXTREMO': return 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300';
       default: return 'text-gray-600 bg-gray-100';
     }
   };
@@ -69,16 +90,16 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
     const recomendacionesBase = [];
 
     // Recomendaciones según nivel de riesgo
-    if (puntuacion <= 2) {
+    if (puntuacion === 1) {
       recomendacionesBase.push({
         categoria: 'Mantenimiento',
         items: [
-          'El puesto presenta un riesgo bajo. Mantener las condiciones actuales.',
+          'El puesto presenta un riesgo inapreciable. Mantener las condiciones actuales.',
           'Realizar revisiones periódicas cada 6 meses.',
           'Fomentar las pausas activas cada 2 horas.'
         ]
       });
-    } else if (puntuacion <= 4) {
+    } else if (puntuacion >= 2 && puntuacion <= 4) {
       recomendacionesBase.push({
         categoria: 'Mejoras Menores',
         items: [
@@ -88,11 +109,22 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
           'Revisar el puesto en 3 meses.'
         ]
       });
-    } else if (puntuacion <= 7) {
+    } else if (puntuacion === 5) {
       recomendacionesBase.push({
         categoria: 'Intervención Necesaria',
         items: [
-          'Se requieren cambios significativos en el puesto.',
+          'Se requieren cambios en el puesto de trabajo.',
+          'Evaluar la adquisición de mobiliario ergonómico.',
+          'Capacitación en ergonomía.',
+          'Pausas activas cada 45-60 minutos.',
+          'Seguimiento en 2 meses.'
+        ]
+      });
+    } else if (puntuacion >= 6 && puntuacion <= 8) {
+      recomendacionesBase.push({
+        categoria: 'Intervención Prioritaria',
+        items: [
+          'Se requieren cambios significativos cuanto antes.',
           'Evaluar la adquisición de nuevo mobiliario ergonómico.',
           'Capacitación intensiva en ergonomía.',
           'Pausas activas cada 30-45 minutos.',
@@ -103,7 +135,7 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
       recomendacionesBase.push({
         categoria: 'Intervención Urgente',
         items: [
-          'ACCIÓN INMEDIATA: El puesto presenta riesgo muy alto.',
+          'ACCIÓN INMEDIATA: El puesto presenta riesgo extremo.',
           'Rediseño completo del puesto de trabajo.',
           'Reemplazo inmediato de mobiliario inadecuado.',
           'Rotación de tareas si es posible.',
@@ -237,13 +269,63 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
             <div className={`p-6 sm:p-8 rounded-xl text-center ${getColorRiesgo(nivelRiesgo)}`}>
               <h2 className="text-xl sm:text-3xl font-bold mb-4">PUNTUACIÓN ROSA FINAL</h2>
               <div className="text-4xl sm:text-6xl font-bold mb-4">{puntuacionFinal}</div>
-              <div className="text-lg sm:text-2xl font-semibold mb-2">NIVEL DE RIESGO: {nivelRiesgo}</div>
-              <p className="text-sm sm:text-lg">
-                {nivelRiesgo === 'BAJO' && 'Riesgo aceptable. Mantener condiciones actuales.'}
-                {nivelRiesgo === 'MEDIO' && 'Riesgo moderado. Se recomiendan mejoras.'}
-                {nivelRiesgo === 'ALTO' && 'Riesgo elevado. Se requieren cambios significativos.'}
-                {nivelRiesgo === 'MUY ALTO' && 'Riesgo crítico. Acción inmediata necesaria.'}
+              <div className="text-lg sm:text-2xl font-semibold mb-2">RIESGO: {nivelRiesgo}</div>
+              <div className="text-base sm:text-xl font-semibold mb-2">NIVEL DE ACTUACIÓN: {getNivelActuacion(puntuacionFinal)}</div>
+              <p className="text-sm sm:text-lg font-medium">
+                {getDescripcionActuacion(puntuacionFinal)}
               </p>
+            </div>
+
+            {/* Tabla de Niveles de Actuación */}
+            <div className="bg-purple-50 dark:bg-purple-900 p-4 sm:p-6 rounded-lg">
+              <h3 className="text-base sm:text-lg font-semibold text-purple-800 dark:text-purple-300 mb-4 text-center">
+                📋 Tabla de Niveles de Actuación según Puntuación ROSA
+              </h3>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-purple-200 dark:bg-purple-800">
+                      <th className="border border-gray-300 dark:border-gray-600 p-2 text-center font-semibold">Puntuación</th>
+                      <th className="border border-gray-300 dark:border-gray-600 p-2 text-center font-semibold">Riesgo</th>
+                      <th className="border border-gray-300 dark:border-gray-600 p-2 text-center font-semibold">Nivel</th>
+                      <th className="border border-gray-300 dark:border-gray-600 p-2 text-center font-semibold">Actuación</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className={puntuacionFinal === 1 ? 'bg-green-200 dark:bg-green-800 font-bold' : 'bg-green-50 dark:bg-green-950'}>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">1</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">Inapreciable</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center bg-green-100 dark:bg-green-900 font-bold">0</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-left">No es necesaria actuación.</td>
+                    </tr>
+                    <tr className={puntuacionFinal >= 2 && puntuacionFinal <= 4 ? 'bg-blue-200 dark:bg-blue-800 font-bold' : 'bg-blue-50 dark:bg-blue-950'}>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">2 - 3 - 4</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">Mejorable</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center bg-blue-100 dark:bg-blue-900 font-bold">1</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-left">Pueden mejorarse algunos elementos del puesto.</td>
+                    </tr>
+                    <tr className={puntuacionFinal === 5 ? 'bg-yellow-200 dark:bg-yellow-800 font-bold' : 'bg-yellow-50 dark:bg-yellow-950'}>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">5</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">Alto</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center bg-yellow-100 dark:bg-yellow-900 font-bold">2</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-left">Es necesaria la actuación.</td>
+                    </tr>
+                    <tr className={puntuacionFinal >= 6 && puntuacionFinal <= 8 ? 'bg-orange-200 dark:bg-orange-800 font-bold' : 'bg-orange-50 dark:bg-orange-950'}>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">6 - 7 - 8</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">Muy Alto</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center bg-orange-100 dark:bg-orange-900 font-bold">3</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-left">Es necesaria la actuación cuanto antes.</td>
+                    </tr>
+                    <tr className={puntuacionFinal >= 9 ? 'bg-red-200 dark:bg-red-800 font-bold' : 'bg-red-50 dark:bg-red-950'}>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">9 - 10</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center">Extremo</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-center bg-red-100 dark:bg-red-900 font-bold">4</td>
+                      <td className="border border-gray-300 dark:border-gray-600 p-2 text-left">Es necesaria la actuación urgentemente.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Resumen de componentes */}
@@ -400,12 +482,12 @@ const ResultadosFinales = ({ onVolverInicio, onVolver, datosEvaluacion }) => {
                   📄 Imprimir Informe PDF
                 </button>
 
-                <button
+                {/* <button
                   onClick={descargarHTML}
                   className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-3 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 text-sm sm:text-base flex-1"
                 >
                   💾 Descargar Informe HTML
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

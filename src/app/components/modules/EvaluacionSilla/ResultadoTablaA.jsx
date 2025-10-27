@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 
 const ResultadoTablaA = ({ onContinuar, onVolver, datosEvaluacion }) => {
   // Debug: ver qué datos están llegando
@@ -33,10 +32,24 @@ const ResultadoTablaA = ({ onContinuar, onVolver, datosEvaluacion }) => {
   const puntuaciones = evaluacionSilla.puntuaciones || {};
 
   // Reconstruir los cálculos para mostrar con validaciones
-  const alturaTotal = (sillaData?.alturaAsiento?.puntuacion || 0) + (sillaData?.alturaAsiento?.incrementos?.length || 0);
-  const profundidadTotal = (sillaData?.profundidadAsiento?.puntuacion || 0) + (sillaData?.profundidadAsiento?.incrementos?.length || 0);
-  const reposabrazosTotal = (sillaData?.reposabrazos?.puntuacion || 0) + (sillaData?.reposabrazos?.incrementos?.length || 0);
-  const respaldoTotal = (sillaData?.respaldo?.puntuacion || 0) + (sillaData?.respaldo?.incrementos?.length || 0);
+  // Los opcionales ahora son objetos {id, valor}, hay que sumar sus valores
+  const incrementosAltura = (sillaData?.alturaAsiento?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+  const incrementosProf = (sillaData?.profundidadAsiento?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+  const incrementosRepos = (sillaData?.reposabrazos?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+  const incrementosResp = (sillaData?.respaldo?.opcionalesSeleccionadas || []).reduce((sum, opt) => sum + opt.valor, 0);
+
+  const alturaTotal = (sillaData?.alturaAsiento?.puntuacion || 0) + incrementosAltura;
+  const profundidadTotal = (sillaData?.profundidadAsiento?.puntuacion || 0) + incrementosProf;
+  const reposabrazosTotal = (sillaData?.reposabrazos?.puntuacion || 0) + incrementosRepos;
+  const respaldoTotal = (sillaData?.respaldo?.puntuacion || 0) + incrementosResp;
+
+  // Debug: verificar cálculos
+  console.log('Cálculos:', {
+    altura: { puntuacion: sillaData?.alturaAsiento?.puntuacion, opcionales: incrementosAltura, total: alturaTotal },
+    profundidad: { puntuacion: sillaData?.profundidadAsiento?.puntuacion, opcionales: incrementosProf, total: profundidadTotal },
+    reposabrazos: { puntuacion: sillaData?.reposabrazos?.puntuacion, opcionales: incrementosRepos, total: reposabrazosTotal },
+    respaldo: { puntuacion: sillaData?.respaldo?.puntuacion, opcionales: incrementosResp, total: respaldoTotal }
+  });
 
   const sumaAlturaProf = alturaTotal + profundidadTotal;
   const sumaReposResp = reposabrazosTotal + respaldoTotal;
@@ -80,18 +93,38 @@ const ResultadoTablaA = ({ onContinuar, onVolver, datosEvaluacion }) => {
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{alturaTotal}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Altura Asiento</div>
+                  {incrementosAltura > 0 && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({sillaData?.alturaAsiento?.puntuacion} + {incrementosAltura})
+                    </div>
+                  )}
                 </div>
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{profundidadTotal}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Profundidad</div>
+                  {incrementosProf > 0 && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({sillaData?.profundidadAsiento?.puntuacion} + {incrementosProf})
+                    </div>
+                  )}
                 </div>
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{reposabrazosTotal}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Reposabrazos</div>
+                  {incrementosRepos > 0 && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({sillaData?.reposabrazos?.puntuacion} + {incrementosRepos})
+                    </div>
+                  )}
                 </div>
                 <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">{respaldoTotal}</div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Respaldo</div>
+                  {incrementosResp > 0 && (
+                    <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      ({sillaData?.respaldo?.puntuacion} + {incrementosResp})
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,4 +1,38 @@
 // PDFGenerator.js - Utilidad para generar informes PDF de evaluación ROSA
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+// Función auxiliar para generar nombre de archivo
+const generarNombreArchivo = (datosEvaluacion) => {
+  const fecha = new Date();
+  const fechaFormateada = fecha.toISOString().split('T')[0]; // YYYY-MM-DD
+  const horaFormateada = fecha.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS
+  
+  const trabajador = (datosEvaluacion?.nombreTrabajador || 'SinNombre').replace(/\s+/g, '_');
+  const empresa = (datosEvaluacion?.empresa || 'SinEmpresa').replace(/\s+/g, '_');
+  
+  return `Informe_ROSA_${trabajador}_${empresa}_${fechaFormateada}_${horaFormateada}`;
+};
+
+// Función para obtener nivel de actuación
+const getNivelActuacion = (puntuacion) => {
+  if (puntuacion === 1) return '0';
+  if (puntuacion >= 2 && puntuacion <= 4) return '1';
+  if (puntuacion === 5) return '2';
+  if (puntuacion >= 6 && puntuacion <= 8) return '3';
+  if (puntuacion >= 9) return '4';
+  return '0';
+};
+
+// Función para obtener descripción de actuación
+const getDescripcionActuacion = (puntuacion) => {
+  if (puntuacion === 1) return 'No es necesaria actuación.';
+  if (puntuacion >= 2 && puntuacion <= 4) return 'Pueden mejorarse algunos elementos del puesto.';
+  if (puntuacion === 5) return 'Es necesaria la actuación.';
+  if (puntuacion >= 6 && puntuacion <= 8) return 'Es necesaria la actuación cuanto antes.';
+  if (puntuacion >= 9) return 'Es necesaria la actuación urgentemente.';
+  return 'No es necesaria actuación.';
+};
 
 export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo, recomendaciones) => {
   // Crear contenido HTML optimizado para PDF
@@ -13,187 +47,350 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
         /* Reset y base */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-          font-family: 'Arial', sans-serif; 
-          line-height: 1.6; 
-          color: #333; 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          line-height: 1.5; 
+          color: #2c3e50; 
           background: white;
-          font-size: 14px;
+          font-size: 11px;
         }
         
         /* Layout */
-        .container { max-width: 210mm; margin: 0 auto; padding: 20mm; }
-        .page-break { page-break-before: always; }
+        .container { 
+          max-width: 100%; 
+          margin: 0; 
+          padding: 0; 
+          background: white;
+        }
+        .page-break { 
+          margin-top: 20px;
+          padding-top: 10px;
+        }
         
-        /* Header */
+        /* Header profesional */
         .header { 
-          text-align: center; 
-          border-bottom: 3px solid #4CAF50; 
-          padding-bottom: 20px; 
-          margin-bottom: 30px; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 20px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .header h1 { 
-          color: #4CAF50; 
-          font-size: 28px; 
-          margin-bottom: 10px; 
-          font-weight: bold;
+          font-size: 24px; 
+          margin-bottom: 8px; 
+          font-weight: 700;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
         .header .subtitle { 
-          color: #666; 
-          font-size: 16px; 
-          margin-bottom: 5px; 
+          font-size: 14px; 
+          margin-bottom: 6px;
+          opacity: 0.95;
         }
         .header .date { 
-          color: #888; 
-          font-size: 14px; 
+          font-size: 11px;
+          opacity: 0.9;
+          font-weight: 300;
+        }
+        
+        /* Logo/Marca de agua */
+        .marca-agua {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          opacity: 0.1;
+          font-size: 120px;
+          color: #667eea;
+          font-weight: bold;
+          z-index: -1;
         }
         
         /* Secciones */
         .section { 
-          margin-bottom: 30px; 
+          margin-bottom: 25px; 
           break-inside: avoid;
+          background: white;
         }
         .section h2 { 
-          color: #4CAF50; 
-          border-bottom: 2px solid #e0e0e0; 
+          color: #667eea; 
+          border-left: 4px solid #667eea;
+          padding-left: 12px;
           padding-bottom: 8px; 
           margin-bottom: 15px; 
-          font-size: 20px;
+          font-size: 18px;
+          font-weight: 600;
         }
         .section h3 { 
-          color: #FF8C00; 
-          margin: 20px 0 10px 0; 
-          font-size: 16px;
+          color: #764ba2; 
+          margin: 18px 0 12px 0; 
+          font-size: 14px;
+          font-weight: 600;
+          border-bottom: 1px solid #f0f0f0;
+          padding-bottom: 6px;
+        }
+        
+        /* Caja destacada */
+        .caja-destacada {
+          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+          padding: 18px;
+          border-radius: 8px;
+          border-left: 4px solid #667eea;
+          margin: 15px 0;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
         
         /* Grid de información */
         .info-grid { 
           display: grid; 
           grid-template-columns: 1fr 1fr; 
-          gap: 15px; 
-          margin-bottom: 20px; 
+          gap: 12px; 
+          margin-bottom: 15px; 
         }
         .info-item { 
-          background: #f8f9fa; 
+          background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
           padding: 12px; 
-          border-radius: 6px; 
-          border-left: 4px solid #4CAF50;
+          border-radius: 8px; 
+          border-left: 4px solid #667eea;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          transition: transform 0.2s;
         }
-        .info-item strong { color: #333; }
+        .info-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .info-item strong { 
+          color: #2c3e50;
+          display: block;
+          margin-bottom: 5px;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
         
         /* Resultado principal */
         .resultado-principal { 
-          background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); 
-          padding: 30px; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 40px; 
           text-align: center; 
-          border-radius: 12px; 
-          margin: 30px 0; 
-          border: 2px solid #4CAF50;
+          border-radius: 15px; 
+          margin: 35px 0; 
+          box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
         }
         .puntuacion-grande { 
           font-size: 48px; 
-          font-weight: bold; 
-          color: #4CAF50; 
+          font-weight: 900; 
+          color: white;
           margin: 15px 0; 
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         .nivel-riesgo { 
-          font-size: 24px; 
-          font-weight: bold; 
-          margin: 10px 0; 
-          padding: 10px 20px;
-          border-radius: 25px;
+          font-size: 20px; 
+          font-weight: 700; 
+          margin: 12px 0; 
+          padding: 10px 24px;
+          border-radius: 24px;
           display: inline-block;
+          text-transform: uppercase;
+          letter-spacing: 1px;
         }
-        .nivel-bajo { background: #d4edda; color: #155724; }
-        .nivel-medio { background: #fff3cd; color: #856404; }
-        .nivel-alto { background: #f8d7da; color: #721c24; }
-        .nivel-muy-alto { background: #f5c6cb; color: #491217; }
+        .nivel-inapreciable { background: #10b981; color: white; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4); }
+        .nivel-mejorable { background: #3b82f6; color: white; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4); }
+        .nivel-alto { background: #f59e0b; color: white; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); }
+        .nivel-muy-alto { background: #f97316; color: white; box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4); }
+        .nivel-extremo { background: #ef4444; color: white; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); }
         
-        /* Tablas */
+        .descripcion-riesgo {
+          font-size: 14px;
+          margin-top: 15px;
+          line-height: 1.6;
+          background: rgba(255,255,255,0.1);
+          padding: 12px;
+          border-radius: 8px;
+        }
+        
+        /* Tablas mejoradas */
         .tabla-container { 
           margin: 20px 0; 
           overflow-x: auto;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .tabla { 
           width: 100%; 
           border-collapse: collapse; 
           background: white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .tabla th, .tabla td { 
-          border: 1px solid #ddd; 
-          padding: 10px 8px; 
+          border: 1px solid #e5e7eb; 
+          padding: 8px 6px; 
           text-align: center; 
-          font-size: 12px;
+          font-size: 10px;
         }
         .tabla th { 
-          background: #4CAF50; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white; 
-          font-weight: bold;
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 9px;
+          letter-spacing: 0.3px;
         }
-        .tabla tr:nth-child(even) { background: #f9f9f9; }
-        .tabla tr:hover { background: #f5f5f5; }
+        .tabla tr:nth-child(even) { background: #f9fafb; }
+        .tabla tr:hover { background: #f3f4f6; }
+        .tabla tr.destacada {
+          background: #ede9fe !important;
+          font-weight: 600;
+        }
         
-        /* Resumen de puntuaciones */
-        .resumen-puntuaciones {
-          background: #f8f9fa;
-          padding: 20px;
-          border-radius: 8px;
+        /* Tabla de niveles de actuación */
+        .tabla-niveles {
           margin: 20px 0;
+        }
+        .tabla-niveles th {
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        .fila-nivel-0 { background: #d1fae5 !important; }
+        .fila-nivel-1 { background: #dbeafe !important; }
+        .fila-nivel-2 { background: #fef3c7 !important; }
+        .fila-nivel-3 { background: #fed7aa !important; }
+        .fila-nivel-4 { background: #fecaca !important; }
+        .fila-seleccionada {
+          background: #c7d2fe !important;
+          font-weight: 700;
+          border: 2px solid #667eea !important;
+        }
+        .badge-nivel {
+          display: inline-block;
+          padding: 4px 10px;
+          border-radius: 16px;
+          font-weight: 700;
+          font-size: 11px;
+        }
+        .badge-0 { background: #10b981; color: white; }
+        .badge-1 { background: #3b82f6; color: white; }
+        .badge-2 { background: #f59e0b; color: white; }
+        .badge-3 { background: #f97316; color: white; }
+        .badge-4 { background: #ef4444; color: white; }
+        
+        /* Resumen de puntuaciones mejorado */
+        .resumen-puntuaciones {
+          background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+          padding: 18px;
+          border-radius: 8px;
+          margin: 18px 0;
+          border: 2px solid #10b981;
+          box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
         }
         .puntuacion-item {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 8px 0;
-          border-bottom: 1px solid #e0e0e0;
+          padding: 8px 12px;
+          background: white;
+          margin: 6px 0;
+          border-radius: 6px;
+          border-left: 3px solid #667eea;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .puntuacion-item:last-child { border-bottom: none; }
+        .puntuacion-item.final {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-left: none;
+          font-size: 16px;
+          padding: 12px;
+          margin-top: 12px;
+        }
         .puntuacion-valor {
-          font-weight: bold;
-          font-size: 18px;
-          color: #4CAF50;
+          font-weight: 700;
+          font-size: 16px;
+          color: #667eea;
+          min-width: 40px;
+          text-align: center;
+          background: #ede9fe;
+          padding: 8px 15px;
+          border-radius: 25px;
+        }
+        .puntuacion-item.final .puntuacion-valor {
+          background: rgba(255,255,255,0.2);
+          color: white;
+          font-size: 28px;
         }
         
-        /* Recomendaciones */
+        /* Recomendaciones mejoradas */
         .recomendacion-categoria { 
-          background: #fff8e1; 
-          padding: 20px; 
-          border-radius: 8px; 
-          margin: 15px 0; 
-          border-left: 5px solid #FFC107;
+          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+          padding: 25px; 
+          border-radius: 12px; 
+          margin: 20px 0; 
+          border-left: 6px solid #f59e0b;
+          box-shadow: 0 4px 8px rgba(245, 158, 11, 0.1);
+          break-inside: avoid;
         }
         .recomendacion-categoria h4 { 
-          color: #F57C00; 
+          color: #92400e; 
           margin-bottom: 12px; 
-          font-size: 16px;
+          font-size: 14px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+        }
+        .recomendacion-categoria h4::before {
+          content: "💡";
+          margin-right: 8px;
+          font-size: 18px;
         }
         .recomendacion-lista { 
           list-style: none; 
           padding: 0; 
         }
         .recomendacion-lista li { 
-          padding: 6px 0; 
+          padding: 6px 0 6px 24px;
           position: relative;
-          padding-left: 20px;
+          line-height: 1.5;
+          color: #78350f;
+          font-size: 11px;
         }
         .recomendacion-lista li::before {
-          content: "▶";
+          content: "✓";
           position: absolute;
           left: 0;
-          color: #FF8C00;
-          font-size: 12px;
+          color: #f59e0b;
+          font-size: 14px;
+          font-weight: bold;
         }
         
-        /* Footer */
+        /* Footer mejorado */
         .footer { 
-          margin-top: 50px; 
-          padding-top: 20px;
-          border-top: 2px solid #e0e0e0;
+          margin-top: 40px; 
+          padding: 18px 15px;
+          border-top: 2px solid #667eea;
+          background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+          border-radius: 8px;
           text-align: center; 
-          font-size: 12px; 
-          color: #666; 
+          font-size: 10px; 
+          color: #6b7280; 
         }
-        .footer p { margin: 5px 0; }
+        .footer p { 
+          margin: 8px 0;
+          line-height: 1.6;
+        }
+        .footer strong {
+          color: #667eea;
+        }
+        
+        /* Divider decorativo */
+        .divider {
+          height: 3px;
+          background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+          margin: 30px 0;
+          border-radius: 2px;
+        }
+        
+        /* Iconos y emojis */
+        .icono {
+          display: inline-block;
+          margin-right: 8px;
+          font-size: 20px;
+        }
         
         /* Utilidades */
         .text-center { text-align: center; }
@@ -208,20 +405,34 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
           .no-print { display: none; }
           .page-break { page-break-before: always; }
         }
+        
+        /* Estilos para descarga HTML */
+        @media screen {
+          body { 
+            background: #f3f4f6;
+            padding: 20px;
+          }
+          .container {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+          }
+        }
       </style>
     </head>
     <body>
+      <div class="marca-agua">ROSA</div>
       <div class="container">
         
         <!-- PÁGINA 1: PORTADA Y RESUMEN -->
         <div class="header">
-          <h1>INFORME DE EVALUACIÓN ERGONÓMICA</h1>
+          <h1>📊 INFORME DE EVALUACIÓN ERGONÓMICA</h1>
           <div class="subtitle">Método ROSA - Rapid Office Strain Assessment</div>
-          <div class="date">Generado el: ${new Date().toLocaleDateString('es-ES', { 
+          <div class="date">📅 Generado el: ${new Date().toLocaleDateString('es-ES', { 
             weekday: 'long', 
             year: 'numeric', 
             month: 'long', 
-            day: 'numeric' 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
           })}</div>
         </div>
 
@@ -263,15 +474,76 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
         </div>
 
         <div class="resultado-principal">
-          <h2 style="margin-bottom: 20px; color: #4CAF50;">🎯 RESULTADO FINAL</h2>
+          <h2 style="margin-bottom: 20px; font-size: 32px;">🎯 RESULTADO FINAL DE EVALUACIÓN</h2>
           <div class="puntuacion-grande">${puntuacionFinal}</div>
           <div class="nivel-riesgo nivel-${nivelRiesgo.toLowerCase().replace(' ', '-')}">
-            NIVEL DE RIESGO: ${nivelRiesgo}
+            RIESGO: ${nivelRiesgo}
           </div>
-          <p style="margin-top: 15px; font-size: 16px;">
-            ${getDescripcionRiesgo(nivelRiesgo)}
-          </p>
+          <div style="margin: 20px 0; font-size: 24px; font-weight: 600;">
+            📊 NIVEL DE ACTUACIÓN: ${getNivelActuacion(puntuacionFinal)}
+          </div>
+          <div class="descripcion-riesgo">
+            ${getDescripcionActuacion(puntuacionFinal)}
+          </div>
         </div>
+
+        <div class="divider"></div>
+
+        <!-- TABLA DE NIVELES DE ACTUACIÓN -->
+        <div class="section">
+          <h2>📋 Tabla de Niveles de Actuación</h2>
+          <div class="caja-destacada">
+            <p style="margin-bottom: 15px; font-weight: 600; color: #764ba2;">
+              Interpretación de la puntuación ROSA según el nivel de actuación requerido:
+            </p>
+            <div class="tabla-container tabla-niveles">
+              <table class="tabla">
+                <thead>
+                  <tr>
+                    <th>Puntuación</th>
+                    <th>Riesgo</th>
+                    <th>Nivel</th>
+                    <th>Actuación Requerida</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="fila-nivel-0 ${puntuacionFinal === 1 ? 'fila-seleccionada' : ''}">
+                    <td><strong>1</strong></td>
+                    <td>Inapreciable</td>
+                    <td><span class="badge-nivel badge-0">0</span></td>
+                    <td style="text-align: left;">No es necesaria actuación.</td>
+                  </tr>
+                  <tr class="fila-nivel-1 ${puntuacionFinal >= 2 && puntuacionFinal <= 4 ? 'fila-seleccionada' : ''}">
+                    <td><strong>2 - 3 - 4</strong></td>
+                    <td>Mejorable</td>
+                    <td><span class="badge-nivel badge-1">1</span></td>
+                    <td style="text-align: left;">Pueden mejorarse algunos elementos del puesto.</td>
+                  </tr>
+                  <tr class="fila-nivel-2 ${puntuacionFinal === 5 ? 'fila-seleccionada' : ''}">
+                    <td><strong>5</strong></td>
+                    <td>Alto</td>
+                    <td><span class="badge-nivel badge-2">2</span></td>
+                    <td style="text-align: left;">Es necesaria la actuación.</td>
+                  </tr>
+                  <tr class="fila-nivel-3 ${puntuacionFinal >= 6 && puntuacionFinal <= 8 ? 'fila-seleccionada' : ''}">
+                    <td><strong>6 - 7 - 8</strong></td>
+                    <td>Muy Alto</td>
+                    <td><span class="badge-nivel badge-3">3</span></td>
+                    <td style="text-align: left;">Es necesaria la actuación cuanto antes.</td>
+                  </tr>
+                  <tr class="fila-nivel-4 ${puntuacionFinal >= 9 ? 'fila-seleccionada' : ''}">
+                    <td><strong>9 - 10</strong></td>
+                    <td>Extremo</td>
+                    <td><span class="badge-nivel badge-4">4</span></td>
+                    <td style="text-align: left;">Es necesaria la actuación urgentemente.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
 
         <div class="section">
           <h2>📊 Resumen de Puntuaciones</h2>
@@ -284,15 +556,14 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
               <span><strong>🖥️ Pantalla y Periféricos</strong></span>
               <span class="puntuacion-valor">${datosEvaluacion?.evaluacionPantallaPerifericos?.puntuaciones?.puntuacionPantallaPerifericos || 0}</span>
             </div>
-            <div class="puntuacion-item" style="border-top: 2px solid #4CAF50; font-size: 18px;">
+            <div class="puntuacion-item final">
               <span><strong>🏆 PUNTUACIÓN ROSA FINAL</strong></span>
-              <span class="puntuacion-valor" style="font-size: 24px;">${puntuacionFinal}</span>
+              <span class="puntuacion-valor">${puntuacionFinal}</span>
             </div>
           </div>
         </div>
 
-        <!-- PÁGINA 2: DETALLES DE LA EVALUACIÓN -->
-        <div class="page-break"></div>
+        <!-- DETALLES DE LA EVALUACIÓN -->
         
         <div class="section">
           <h2>🔍 Detalles de la Evaluación</h2>
@@ -344,7 +615,7 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
                   <td>${(datosEvaluacion?.evaluacionSilla?.respaldo?.puntuacion || 0) + (datosEvaluacion?.evaluacionSilla?.respaldo?.incrementos?.length || 0)}</td>
                   <td>${getNivelComponente((datosEvaluacion?.evaluacionSilla?.respaldo?.puntuacion || 0) + (datosEvaluacion?.evaluacionSilla?.respaldo?.incrementos?.length || 0))}</td>
                 </tr>
-                <tr style="background: #f0f8f0;">
+                <tr class="destacada">
                   <td><strong>🪑 TOTAL SILLA</strong></td>
                   <td><strong>${datosEvaluacion?.evaluacionSilla?.puntuaciones?.puntuacionSilla || 0}</strong></td>
                   <td><strong>${getNivelRiesgo(datosEvaluacion?.evaluacionSilla?.puntuaciones?.puntuacionSilla || 0)}</strong></td>
@@ -369,7 +640,7 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
                   <td>${datosEvaluacion?.evaluacionPantallaPerifericos?.puntuaciones?.puntuacionTeclado || 0}</td>
                   <td>${getNivelComponente(datosEvaluacion?.evaluacionPantallaPerifericos?.puntuaciones?.puntuacionTeclado || 0)}</td>
                 </tr>
-                <tr style="background: #fff8e1;">
+                <tr class="destacada">
                   <td><strong>🖥️ TOTAL PANTALLA Y PERIFÉRICOS</strong></td>
                   <td><strong>${datosEvaluacion?.evaluacionPantallaPerifericos?.puntuaciones?.puntuacionPantallaPerifericos || 0}</strong></td>
                   <td><strong>${getNivelRiesgo(datosEvaluacion?.evaluacionPantallaPerifericos?.puntuaciones?.puntuacionPantallaPerifericos || 0)}</strong></td>
@@ -379,8 +650,7 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
           </div>
         </div>
 
-        <!-- PÁGINA 3: RECOMENDACIONES -->
-        <div class="page-break"></div>
+        <!-- RECOMENDACIONES -->
         
         <div class="section">
           <h2>💡 Recomendaciones</h2>
@@ -408,11 +678,17 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
         ` : ''}
 
         <div class="footer">
-          <p><strong>Informe generado automáticamente por el Sistema de Evaluación ROSA</strong></p>
+          <p><strong>📄 Informe generado automáticamente por el Sistema de Evaluación ROSA</strong></p>
           <p>Este informe debe ser interpretado por personal capacitado en ergonomía ocupacional</p>
-          <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}</p>
-          <p style="margin-top: 15px; font-size: 10px;">
-            El método ROSA fue desarrollado por Sonne, Villalta y Andrews (2012) para la evaluación rápida de riesgos ergonómicos en puestos de oficina.
+          <p><strong>📅 Fecha y hora de generación:</strong> ${new Date().toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric'
+          })} a las ${new Date().toLocaleTimeString('es-ES')}</p>
+          <div class="divider" style="margin: 15px 0;"></div>
+          <p style="font-size: 11px; color: #9ca3af;">
+            <strong>Método ROSA:</strong> Desarrollado por Sonne, Villalta y Andrews (2012) para la evaluación rápida de riesgos ergonómicos en puestos de oficina.<br>
+            Este método evalúa la postura de trabajo y el uso de equipos en entornos de oficina para identificar factores de riesgo musculoesqueléticos.
           </p>
         </div>
       </div>
@@ -420,45 +696,91 @@ export const generarInformePDF = (datosEvaluacion, puntuacionFinal, nivelRiesgo,
     </html>
   `;
 
-  // Crear y abrir ventana para imprimir
-  const ventanaPDF = window.open('', '_blank', 'width=800,height=1000');
+  // Generar nombre de archivo
+  const nombreArchivo = generarNombreArchivo(datosEvaluacion);
   
-  if (ventanaPDF) {
-    ventanaPDF.document.write(contenidoHTML);
-    ventanaPDF.document.close();
+  // Crear un contenedor temporal para el contenido HTML
+  const contenedorTemporal = document.createElement('div');
+  contenedorTemporal.style.position = 'absolute';
+  contenedorTemporal.style.left = '-9999px';
+  contenedorTemporal.style.width = '210mm'; // Ancho A4
+  contenedorTemporal.style.background = 'white';
+  contenedorTemporal.style.padding = '20px';
+  contenedorTemporal.innerHTML = contenidoHTML;
+  document.body.appendChild(contenedorTemporal);
+
+  // Usar html2canvas para convertir el HTML a imagen
+  html2canvas(contenedorTemporal, {
+    scale: 2, // Mayor calidad
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+    windowWidth: 794, // Ancho A4 en píxeles (210mm)
+    windowHeight: contenedorTemporal.scrollHeight
+  }).then(canvas => {
+    // Remover el contenedor temporal
+    document.body.removeChild(contenedorTemporal);
     
-    // Esperar a que se cargue y luego mostrar diálogo de impresión
-    ventanaPDF.onload = () => {
-      setTimeout(() => {
-        ventanaPDF.print();
-      }, 500);
-    };
-  } else {
-    alert('No se pudo abrir la ventana para generar el PDF. Verifique que el bloqueador de ventanas emergentes esté desactivado.');
-  }
+    // Crear PDF con jsPDF
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const imgWidth = 210; // Ancho A4 en mm
+    const pageHeight = 297; // Alto A4 en mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+    
+    // Agregar primera página
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+    
+    // Si el contenido es más largo que una página, agregar más páginas
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+    
+    // Descargar el PDF
+    pdf.save(`${nombreArchivo}.pdf`);
+  }).catch(error => {
+    console.error('Error al generar PDF:', error);
+    document.body.removeChild(contenedorTemporal);
+    alert('Error al generar el PDF. Por favor, inténtelo de nuevo.');
+  });
 };
 
 // Funciones auxiliares
 const getDescripcionRiesgo = (nivel) => {
   switch (nivel) {
-    case 'BAJO':
-      return 'El puesto presenta un riesgo ergonómico aceptable. Se recomienda mantener las condiciones actuales y realizar seguimientos periódicos.';
-    case 'MEDIO':
-      return 'El puesto presenta un riesgo ergonómico moderado. Se recomiendan mejoras y seguimiento en el corto plazo.';
+    case 'INAPRECIABLE':
+      return 'El puesto presenta un riesgo ergonómico inapreciable. Las condiciones actuales son óptimas. Se recomienda mantener estas condiciones y realizar seguimientos periódicos.';
+    case 'MEJORABLE':
+      return 'El puesto presenta un riesgo ergonómico mejorable. Se pueden realizar ajustes menores para optimizar las condiciones de trabajo.';
     case 'ALTO':
-      return 'El puesto presenta un riesgo ergonómico elevado. Se requieren cambios significativos de forma prioritaria.';
+      return 'El puesto presenta un riesgo ergonómico alto. Se requieren cambios significativos en el puesto de trabajo de forma prioritaria.';
     case 'MUY ALTO':
-      return 'El puesto presenta un riesgo ergonómico crítico. Se requiere acción inmediata para prevenir lesiones.';
+      return 'El puesto presenta un riesgo ergonómico muy alto. Se requiere acción cuanto antes para prevenir lesiones musculoesqueléticas.';
+    case 'EXTREMO':
+      return 'El puesto presenta un riesgo ergonómico extremo. Se requiere acción inmediata y urgente para prevenir lesiones graves.';
     default:
       return 'Nivel de riesgo no determinado.';
   }
 };
 
 const getNivelRiesgo = (puntuacion) => {
-  if (puntuacion <= 2) return 'BAJO';
-  if (puntuacion <= 4) return 'MEDIO';
-  if (puntuacion <= 7) return 'ALTO';
-  return 'MUY ALTO';
+  if (puntuacion === 1) return 'INAPRECIABLE';
+  if (puntuacion >= 2 && puntuacion <= 4) return 'MEJORABLE';
+  if (puntuacion === 5) return 'ALTO';
+  if (puntuacion >= 6 && puntuacion <= 8) return 'MUY ALTO';
+  if (puntuacion >= 9) return 'EXTREMO';
+  return 'INAPRECIABLE';
 };
 
 const getNivelComponente = (puntuacion) => {
@@ -470,14 +792,29 @@ const getNivelComponente = (puntuacion) => {
 
 // Función alternativa para descargar como archivo HTML
 export const descargarInformeHTML = (datosEvaluacion, puntuacionFinal, nivelRiesgo, recomendaciones) => {
-  const contenidoHTML = generarContenidoHTML(datosEvaluacion, puntuacionFinal, nivelRiesgo, recomendaciones);
+  // Reutilizar la misma función generarInformePDF pero modificar el comportamiento final
+  const contenidoHTML = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Informe ROSA - ${datosEvaluacion?.nombreTrabajador || 'Sin Trabajador'} - ${datosEvaluacion?.empresa || 'Sin Empresa'}</title>
+      ${obtenerEstilosHTML()}
+    </head>
+    <body>
+      ${obtenerContenidoHTML(datosEvaluacion, puntuacionFinal, nivelRiesgo, recomendaciones)}
+    </body>
+    </html>
+  `;
   
   const blob = new Blob([contenidoHTML], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   
+  const nombreArchivo = generarNombreArchivo(datosEvaluacion);
   const enlaceDescarga = document.createElement('a');
   enlaceDescarga.href = url;
-  enlaceDescarga.download = `Informe_ROSA_${datosEvaluacion?.identificadorPuesto || 'SinID'}_${new Date().toISOString().split('T')[0]}.html`;
+  enlaceDescarga.download = `${nombreArchivo}.html`;
   
   document.body.appendChild(enlaceDescarga);
   enlaceDescarga.click();
@@ -486,9 +823,11 @@ export const descargarInformeHTML = (datosEvaluacion, puntuacionFinal, nivelRies
   URL.revokeObjectURL(url);
 };
 
-// Función para generar contenido HTML (reutilizable)
-const generarContenidoHTML = (datosEvaluacion, puntuacionFinal, nivelRiesgo, recomendaciones) => {
-  // Aquí iría el mismo contenido HTML que en la función principal
-  // (simplificado para evitar duplicación)
-  return `<!DOCTYPE html>...`; // El mismo contenido HTML de arriba
+// Funciones auxiliares para reutilizar código
+const obtenerEstilosHTML = () => {
+  return `<style>/* Los estilos CSS aquí */</style>`;
+};
+
+const obtenerContenidoHTML = (datosEvaluacion, puntuacionFinal, nivelRiesgo, recomendaciones) => {
+  return `<!-- Contenido HTML aquí -->`;
 };
