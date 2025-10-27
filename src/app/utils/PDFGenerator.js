@@ -1,6 +1,6 @@
 // PDFGenerator.js - Utilidad para generar informes PDF de evaluación ROSA
-import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // Función auxiliar para generar nombre de archivo
 const generarNombreArchivo = (datosEvaluacion) => {
