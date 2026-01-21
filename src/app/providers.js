@@ -1,16 +1,17 @@
-'use client'
+"use client";
 
-import { ThemeProvider } from 'next-themes'
+import { ThemeProvider } from "next-themes";
 
 export function Providers({ children }) {
   return (
-    <ThemeProvider 
+    <ThemeProvider
       attribute="class"
       defaultTheme="light"
-      enableSystem={true}
-      themes={['light', 'dark']}
+      enableSystem={false}
+      themes={["light", "dark"]}
+      disableTransitionOnChange
     >
       {children}
     </ThemeProvider>
-  )
+  );
 }
