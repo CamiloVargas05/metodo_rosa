@@ -398,25 +398,25 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       puntuacion: 1, 
       descripcion: "Rodillas dobladas en torno a los 90 grados.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/postura-neutra.png", 
+      imagen: "/imgs/img-posturas/Puntuación_altura_asiento/postura-neutra.png", 
     },
     { 
       puntuacion: 2, 
       descripcion: "Asiento a una altura baja. Rodillas flexionadas en un ángulo menor a 90 grados.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/postura-desviacion.png", 
+      imagen: "/imgs/img-posturas/Puntuación_altura_asiento/postura-desviacion.png", 
     },
     { 
       puntuacion: 2, 
       descripcion: "Asiento a una altura elevada. Rodillas en un ángulo mayor a 90 grados.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/espacio-insuficiente.png",
+      imagen: "/imgs/img-posturas/Puntuación_altura_asiento/postura-desviacion2.png",
     },
     { 
       puntuacion: 3, 
       descripcion: "Sin contacto de los pies con el suelo.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/espacio-insuficiente.png",
+      imagen: "/imgs/img-posturas/Puntuación_altura_asiento/porstura-si-tocar-asiento.png",
     }
   ];
 
@@ -424,7 +424,7 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     { 
       valor: 1,
       descripcion: "Espacio insuficiente para las piernas bajo la mesa.", 
-      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/postura-desviacion.png",
+      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/espacio-insuficiente.png",
     },
     { 
       valor: 1,
@@ -438,19 +438,19 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       puntuacion: 1,
       descripcion: "Aproximadamente 8 cm de espacio entre el asiento y la parte trasera de las rodillas.",
       incrementos: [],
-      imagen: "/imgs/img-posturas/puntuacion de la profundidad del asiento/postura2.png", 
+      imagen: "/imgs/img-posturas/puntuacion_profundidad_asiento/postura2.png", 
     },
     { 
       puntuacion: 2, 
       descripcion: "Asiento muy largo. Menos de 8 cm de espacio entre el asiento y la parte trasera de las rodillas.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/puntuacion de la profundidad del asiento/postura1.png", 
+      imagen: "/imgs/img-posturas/puntuacion_profundidad_asiento/postura1.png", 
     },
     { 
       puntuacion: 2, 
       descripcion: "Asiento muy corto. Más de 8 cm de espacio entre el asiento y la parte trasera de las rodillas.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/puntuacion de la profundidad del asiento/postura1.png",
+      imagen: "/imgs/img-posturas/puntuacion_profundidad_asiento/postura4.png",
     }
   ];
 
@@ -458,7 +458,7 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     { 
       valor: 1, 
       descripcion: "La profundidad del asiento no es regulable.", 
-      imagen: "/imgs/img-posturas/puntuacion de la profundidad del asiento/postura4.png",
+      imagen: "/imgs/img-posturas/puntuacion_profundidad_asiento/postura3.png",
     }
   ];
 
@@ -467,19 +467,19 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       puntuacion: 1, 
       descripcion: "Codos bien apoyados en línea con los hombros. Los hombros están relajados.", 
       incrementos: [], 
-      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura4.png",
+      imagen: "/imgs/img-posturas/Puntuacion_reposabrazos/postura1.png",
     },
     { 
       puntuacion: 2, 
       descripcion: "Reposabrazos demasiado altos. Los hombros están encogidos.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura1.png", 
+      imagen: "/imgs/img-posturas/Puntuacion_reposabrazos/postura2.png", 
     },
     { 
       puntuacion: 2, 
       descripcion: "Reposabrazos demasiado bajos. Los codos no apoyan sobre ellos.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura1.png", 
+      imagen: "/imgs/img-posturas/Puntuacion_reposabrazos/postura6.png", 
     }
   ];
 
@@ -487,17 +487,17 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     { 
       valor: 1, 
       descripcion: "Reposabrazos demasiado separados.", 
-      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura2.png", 
+      imagen: "/imgs/img-posturas/Puntuacion_reposabrazos/postura4.png", 
     },
     { 
       valor: 1, 
       descripcion: "La superficie del reposabrazos es dura o está dañada.", 
-      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura3.png", 
+      imagen: "/imgs/img-posturas/Puntuacion_reposabrazos/postura3.png", 
     },
     { 
       valor: 1, 
       descripcion: "Reposabrazos no ajustables.", 
-      imagen: "/imgs/img-posturas/Puntuacion de los reposabrazos/postura2.png", 
+      imagen: "/imgs/img-posturas/Puntuacion_reposabrazos/postura5.png", 
     }
   ];
 
@@ -506,25 +506,25 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
       puntuacion: 1, 
       descripcion: "Respaldo reclinado entre 95 y 110º y apoyo lumbar adecuado.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura3.png",
+      imagen: "/imgs/img-posturas/Puntuacion_respaldo/postura1.png",
     },
     { 
       puntuacion: 2, 
       descripcion: "Sin apoyo lumbar o apoyo lumbar no situado en la parte baja de la espalda.", 
       incrementos: [], 
-      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura2.png",
+      imagen: "/imgs/img-posturas/Puntuacion_respaldo/postura2.png",
     },
     { 
       puntuacion: 2, 
       descripcion: "Respaldo reclinado menos de 95º o más de 110º.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura2.png",
+      imagen: "/imgs/img-posturas/Puntuacion_respaldo/postura3.png",
     },
     { 
       puntuacion: 2, 
       descripcion: "Sin respaldo o respaldo no utilizado para apoyar la espalda.", 
       incrementos: [],
-      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura2.png",
+      imagen: "/imgs/img-posturas/Puntuacion_respaldo/postura4.png",
     }
   ];
 
@@ -532,12 +532,12 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     { 
       valor: 1, 
       descripcion: "Superficie de trabajo demasiado alta. Los hombros están encogidos.", 
-      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura1.png",
+      imagen: "/imgs/img-posturas/Puntuacion_respaldo/postura5.png",
     },
     { 
       valor: 1, 
       descripcion: "Respaldo no ajustable.", 
-      imagen: "/imgs/img-posturas/Puntuacion del respaldo/postura1.png",
+      imagen: "/imgs/img-posturas/Puntuacion_respaldo/postura6.png",
     }
   ];
 

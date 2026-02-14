@@ -497,17 +497,17 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       puntuacion: 1, 
       descripcion: "Pantalla a entre 45 y 75 cm. de distancia de los ojos y borde superior a la altura de los ojos", 
-      imagen: "/imgs/img-posturas/Puntuacion de la pantalla/postura1.png"
+      imagen: "/imgs/img-posturas/puntuacion_pantalla/postura1.png"
     },
     { 
       puntuacion: 2, 
       descripcion: "Pantalla muy baja. 30° por debajo del nivel de los ojos", 
-      imagen: "/imgs/img-posturas/Puntuacion de la pantalla/postura2.png"
+      imagen: "/imgs/img-posturas/puntuacion_pantalla/postura2.png"
     },
     { 
       puntuacion: 3, 
       descripcion: "Pantalla demasiado alta. Provoca extensión de cuello", 
-      imagen: "/imgs/img-posturas/Puntuacion de la pantalla/postura3.png"
+      imagen: "/imgs/img-posturas/puntuacion_pantalla/postura3.png"
     }
   ];
 
@@ -515,12 +515,12 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       puntuacion: 1, 
       descripcion: "Se usan cascos auriculares o se usa el teléfono con una mano y el cuello en posición neutral. El teléfono está cerca (30 cm. o menos)", 
-      imagen: "/imgs/img-posturas/Puntuacion del telefono/postura1.png"
+      imagen: "/imgs/img-posturas/Puntuacion_telefono/postura1.png"
     },
     { 
       puntuacion: 2, 
       descripcion: "El teléfono está lejos. A más de 30 cm", 
-      imagen: "/imgs/img-posturas/Puntuacion del telefono/postura2.png"
+      imagen: "/imgs/img-posturas/Puntuacion_telefono/postura2.png"
     }
   ];
 
@@ -528,12 +528,12 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       puntuacion: 1, 
       descripcion: "El mouse está alineado con el hombro", 
-      imagen: "/imgs/img-posturas/Puntuacion del mouse/postura1.png"
+      imagen: "/imgs/img-posturas/puntuacion_mouse/postura1.png"
     },
     { 
       puntuacion: 2, 
       descripcion: "El mouse no está alineado con el hombro o está lejos del cuerpo", 
-      imagen: "/imgs/img-posturas/Puntuacion del mouse/postura2.png"
+      imagen: "/imgs/img-posturas/puntuacion_mouse/postura2.png"
     }
   ];
 
@@ -541,12 +541,12 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       puntuacion: 1, 
       descripcion: "Las muñecas están rectas y los hombros relajados", 
-      imagen: "/imgs/img-posturas/Puntuacion del teclado/postura1.png"
+      imagen: "/imgs/img-posturas/Puntuacion_teclado/postura1.png"
     },
     { 
       puntuacion: 2, 
       descripcion: "Las muñecas están extendidas más de 15°", 
-      imagen: "/imgs/img-posturas/Puntuacion del teclado/postura2.png"
+      imagen: "/imgs/img-posturas/Puntuacion_teclado/postura2.png"
     }
   ];
 
@@ -555,22 +555,22 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       valor: 1,
       descripcion: "Pantalla desviada lateralmente. Es necesario girar el cuello", 
-      imagen: "/imgs/img-posturas/Puntuacion de la pantalla/postura1.png"
+      imagen: "/imgs/img-posturas/puntuacion_pantalla/postura5.png"
     },
     { 
       valor: 1,
       descripcion: "Es necesario manejar documentos y no existe un atril o soporte para ellos", 
-      imagen: "/imgs/img-posturas/Puntuacion de la pantalla/postura2.png"
+      imagen: "/imgs/img-posturas/puntuacion_pantalla/postura6.png"
     },
     { 
       valor: 1,
       descripcion: "Brillos o reflejos en la pantalla", 
-      imagen: "/imgs/img-posturas/Puntuacion de la pantalla/postura3.png"
+      imagen: "/imgs/img-posturas/puntuacion_pantalla/postura7.png"
     },
     { 
       valor: 1,
       descripcion: "Pantalla muy lejos. A más de 75 cm. de distancia o fuera del alcance del brazo", 
-      imagen: "/imgs/img-posturas/Puntuacion de la pantalla/postura4.png"
+      imagen: "/imgs/img-posturas/puntuacion_pantalla/postura4.png"
     }
   ];
 
@@ -579,12 +579,12 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       valor: 2,
       descripcion: "El teléfono se sujeta entre el cuello y el hombro", 
-      imagen: "/imgs/img-posturas/Puntuacion del telefono/postura2.png"
+      imagen: "/imgs/img-posturas/Puntuacion_telefono/postura3.png"
     },
     { 
       valor: 1,
       descripcion: "El teléfono no tiene función manos libres", 
-      imagen: "/imgs/img-posturas/Puntuacion del telefono/postura1.png"
+      imagen: "/imgs/img-posturas/Puntuacion_telefono/postura4.png"
     }
   ];
 
@@ -593,17 +593,17 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       valor: 1,
       descripcion: "Mouse muy pequeño. Requiere agarrarlo con la mano en pinza", 
-      imagen: "/imgs/img-posturas/Puntuacion del mouse/postura1.png"
+      imagen: "/imgs/img-posturas/puntuacion_mouse/postura3.png"
     },
     { 
       valor: 2,
       descripcion: "El mouse y teclado están a diferentes alturas", 
-      imagen: "/imgs/img-posturas/Puntuacion del mouse/postura2.png"
+      imagen: "/imgs/img-posturas/puntuacion_mouse/postura4.png"
     },
     { 
       valor: 1,
       descripcion: "Reposamanos duro o existen puntos de presión en la mano al usar el mouse", 
-      imagen: "/imgs/img-posturas/Puntuacion del mouse/postura3.png"
+      imagen: "/imgs/img-posturas/puntuacion_mouse/postura5.png"
     }
   ];
 
@@ -612,22 +612,22 @@ const EvaluacionPantallaPerifericos = ({ onNext, onBack, formData }) => {
     { 
       valor: 1,
       descripcion: "Las muñecas están desviadas lateralmente hacia dentro o hacia afuera", 
-      imagen: "/imgs/img-posturas/Puntuacion del teclado/postura1.png"
+      imagen: "/imgs/img-posturas/Puntuacion_teclado/postura3.png"
     },
     { 
       valor: 1,
       descripcion: "El teclado está demasiado alto. Los hombros están encogidos", 
-      imagen: "/imgs/img-posturas/Puntuacion del teclado/postura2.png"
+      imagen: "/imgs/img-posturas/Puntuacion_teclado/postura4.png"
     },
     { 
       valor: 1,
       descripcion: "Se deben alcanzar objetos alejados o por encima del nivel de la cabeza", 
-      imagen: "/imgs/img-posturas/Puntuacion del teclado/postura3.png"
+      imagen: "/imgs/img-posturas/Puntuacion_teclado/postura5.png"
     },
     { 
       valor: 1,
       descripcion: "El teclado, o la plataforma sobre la que reposa, no son ajustables", 
-      imagen: "/imgs/img-posturas/Puntuacion del teclado/postura4.png"
+      imagen: "/imgs/img-posturas/Puntuacion_teclado/postura6.png"
     }
   ];
 
