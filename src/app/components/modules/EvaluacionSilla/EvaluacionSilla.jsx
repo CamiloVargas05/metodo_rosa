@@ -424,12 +424,12 @@ const EvaluacionSilla = ({ onNext, onBack, formData }) => {
     { 
       valor: 1,
       descripcion: "Espacio insuficiente para las piernas bajo la mesa.", 
-      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/espacio-insuficiente.png",
+      imagen: "/imgs/img-posturas/Puntuación_altura_asiento/espacio-insuficiente.png",
     },
     { 
       valor: 1,
       descripcion: "La altura del asiento no es regulable.", 
-      imagen: "/imgs/img-posturas/Puntuación de la altura del asiento/altura-no-regulable.png",
+      imagen: "/imgs/img-posturas/Puntuación_altura_asiento/altura-no-regulable.png",
     }
   ];
 
